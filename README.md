@@ -1,4 +1,4 @@
-# Scattered-Storage
+# File Chunker
  A python script that split a file into smaller chunks
 
 ### Prerequisites
