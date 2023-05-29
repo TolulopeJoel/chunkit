@@ -2,6 +2,9 @@
 __pycache__/
 *.py[cod]
 *$py.class
+file_types/
+test_files/
+*_chunks/
 
 # C extensions
 *.so
