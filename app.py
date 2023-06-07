@@ -1,1 +1,1 @@
-from chunkers import image_files, text_files, video_files
+from chunkers import image_split, text_split, video_split, pdf_split

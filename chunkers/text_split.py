@@ -2,16 +2,6 @@ import os
 
 
 def split(file_path, num_chunks=2):
-    with open(file_path, "r") as text_file:
-        file_lines = text_file.readlines()
-        num_file_lines = len(file_lines)
-        lines_per_chunk = int(num_file_lines / num_chunks)
-        remaining_lines = 0
-
-        total_lpc = lines_per_chunk * num_chunks # total lines for all chunks
-        if total_lpc < num_file_lines:
-            remaining_lines = num_file_lines - total_lpc
-
     # file names and extension
     file_basename = os.path.basename(file_path)
     file_pathname = os.path.splitext(file_basename)
@@ -20,6 +10,12 @@ def split(file_path, num_chunks=2):
     # create text chunks ouput folder
     chunks_folder_name = f"{file_name}_chunks"
     os.makedirs(chunks_folder_name, exist_ok=True)
+
+    with open(file_path, "r") as text_file:
+        file_lines = text_file.readlines()
+        num_file_lines = len(file_lines)
+        lines_per_chunk = num_file_lines // num_chunks
+        remaining_lines = num_file_lines % num_chunks
 
     start_line = 0
     end_line = lines_per_chunk
