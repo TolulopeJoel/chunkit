@@ -3,13 +3,13 @@ import os
 from chunkers import image_split, text_split, video_split, pdf_split, archive_split
 
 file_extensions = {
-    'image': ['.jpg', '.jpeg', '.png', '.webp', '.svg', '.gif', '.bmp', '.ico', '.tiff'],
-    'archive': ['.tar', '.gz', '.zip', '.rar', '.7z'],
-    'video': ['.mp4', '.mkv', '.avi', '.mov', '.wmv', '.flv', '.m4v'],
-    'audio': ['.mp3', '.wav', '.flac', '.aac', '.ogg'],
-    'document': ['.doc', '.docx', '.xls', '.xlsx', '.ppt', '.pptx'],
-    'text': ['.txt', '.csv'],
-    'pdf': ['.pdf'],
+    "image": [".jpg", ".jpeg", ".png", ".webp", ".svg", ".gif", ".bmp", ".ico", ".tiff"],
+    "archive": [".tar", ".gz", ".zip", ".rar", ".7z"],
+    "video": [".mp4", ".mkv", ".avi", ".mov", ".wmv", ".flv", ".m4v"],
+    "audio": [".mp3", ".wav", ".flac", ".aac", ".ogg"],
+    "document": [".doc", ".docx", ".xls", ".xlsx", ".ppt", ".pptx"],
+    "text": [".txt", ".csv"],
+    "pdf": [".pdf"],
 }
 
 file_handlers = {
@@ -41,10 +41,18 @@ def get_file_type(file_path):
 
 def handle_file(file):
     file_type = get_file_type(file)
-    
+
     if file_type:
         handler_func = file_handlers.get(file_type)
         print(handler_func(file))
     else:
         return "Unsupported file type"
 
+
+if __name__ == "__main__":
+    user_file = input("Your file path: ")
+
+    if user_file:
+        handle_file(user_file)
+    else:
+        print("An unexpected error occurred")
