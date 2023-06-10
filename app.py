@@ -1,3 +1,5 @@
+import os
+
 from chunkers import image_split, text_split, video_split, pdf_split, archive_split
 
 file_extensions = {
@@ -17,3 +19,32 @@ file_handlers = {
     "text": text_split,
     "pdf": pdf_split,
 }
+
+
+def get_file_extension(file):
+    file_basename = os.path.basename(file)
+    file_pathname = os.path.splitext(file_basename)
+    file_extension = file_pathname[1]
+
+    return file_extension
+
+
+def get_file_type(file_path):
+    file_extension = get_file_extension(file_path)
+
+    for extension_type, extensions in file_extensions.items():
+        if file_extension in extensions:
+            return extension_type
+
+    return None
+
+
+def handle_file(file):
+    file_type = get_file_type(file)
+    
+    if file_type:
+        handler_func = file_handlers.get(file_type)
+        print(handler_func(file))
+    else:
+        return "Unsupported file type"
+
