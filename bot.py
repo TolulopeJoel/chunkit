@@ -1,4 +1,5 @@
 import os
+import shutil
 
 from environs import Env
 from telegram.ext import (
@@ -14,7 +15,6 @@ from video_chunker import split_video
 
 env = Env()
 env.read_env()
-CHUNKS_FOLDER_NAME = "chunks"
 
 # Conversation states
 GET_FILE, GET_NUM_CHUNKS, CONFIRM_CHUNKS = 1, 2, 3
@@ -119,12 +119,27 @@ def get_split_function(file_path):
     return None
 
 
+def delete_chunks_folders():
+    # Get the current working directory
+    current_dir = os.getcwd()
+
+    # Iterate over the directories in the current directory
+    for directory in os.listdir(current_dir):
+        if directory.endswith("_chunks") and os.path.isdir(directory):
+            # Delete the directory and its contents
+            shutil.rmtree(directory)
+            print(f"Deleted folder: {directory}")
+
+
 def send_chunks(update, context, chunk_files):
     for chunk_file in chunk_files:
         context.bot.send_document(
             chat_id=update.effective_chat.id,
             document=open(chunk_file, "rb")
         )
+
+    # Delete the 'chunks' folder
+    delete_chunks_folders()
 
 
 def main():
