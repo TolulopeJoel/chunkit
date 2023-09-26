@@ -1,8 +1,9 @@
 from rest_framework import serializers
-from .models import UserFile
+
+from .models import File
 
 
-class UserFileSerializer(serializers.ModelSerializer):
+class FileSerializer(serializers.ModelSerializer):
     class Meta:
-        model = UserFile
+        model = File
         fields = '__all__'

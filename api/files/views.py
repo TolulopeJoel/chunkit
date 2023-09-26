@@ -1,3 +1,9 @@
-from django.shortcuts import render
+from rest_framework import generics
 
-# Create your views here.
+from .models import File
+from .serializers import FileSerializer
+
+
+class FileListCreateView(generics.ListCreateAPIView):
+    queryset = File.objects.all()
+    serializer_class = FileSerializer
