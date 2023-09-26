@@ -49,6 +49,7 @@ INSTALLED_APPS = [
     
     #local apps
     'files.apps.FilesConfig',
+    'accounts.apps.AccountsConfig',
     
     # 3rd party libraries
     'rest_framework',
