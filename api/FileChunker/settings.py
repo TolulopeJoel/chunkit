@@ -12,10 +12,6 @@ https://docs.djangoproject.com/en/4.2/ref/settings/
 
 from datetime import timedelta
 from pathlib import Path
-
-import cloudinary
-import cloudinary.api
-import cloudinary.uploader
 from environs import Env
 
 env = Env()
@@ -54,7 +50,6 @@ INSTALLED_APPS = [
     # 3rd party libraries
     'rest_framework',
     'rest_framework_simplejwt',
-    'cloudinary'
 ]
 
 AUTH_USER_MODEL = 'accounts.CustomUser'
@@ -144,14 +139,6 @@ DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
 
 
 # THIRD PARTY APPS  SETTINGS
-
-# cloudinary settings
-
-cloudinary.config(
-    cloud_name=env.str('CLOUD_NAME'),
-    api_key=env.str('CLOUDINARY_API_KEY'),
-    api_secret=env.str('CLOUDINARY_API_SECRET')
-)
 
 # REST framework settings
 

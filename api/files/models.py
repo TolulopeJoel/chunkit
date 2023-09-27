@@ -1,6 +1,5 @@
 import uuid
 
-from cloudinary.models import CloudinaryField
 from django.contrib.auth import get_user_model
 from django.db import models
 
@@ -19,7 +18,7 @@ class File(models.Model):
     )
 
     name = models.CharField(max_length=255)
-    file = CloudinaryField('file')
+    file = models.FileField()
     uploaded_at = models.DateTimeField(auto_now_add=True)
 
     def __str__(self):
