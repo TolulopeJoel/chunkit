@@ -31,3 +31,9 @@ jobs:
     - name: Run Tests
       run: |
         python manage.py test
+      env:
+        CLOUD_NAME: ${{ secrets.CLOUD_NAME }}
+        CLOUDINARY_API_KEY: ${{ secrets.CLOUDINARY_API_KEY }}
+        CLOUDINARY_API_SECRET: ${{ secrets.CLOUDINARY_API_SECRET }}
+        SECRET_KEY: ${{ secrets.SECRET_KEY }}
+
