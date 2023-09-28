@@ -48,6 +48,8 @@ INSTALLED_APPS = [
     'accounts.apps.AccountsConfig',
     
     # 3rd party libraries
+    'cloudinary_storage',
+    'cloudinary',
     'rest_framework',
     'rest_framework_simplejwt',
 ]
@@ -139,6 +141,16 @@ DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
 
 
 # THIRD PARTY APPS  SETTINGS
+
+# cloudinary settings
+
+DEFAULT_FILE_STORAGE = 'cloudinary_storage.storage.RawMediaCloudinaryStorage'
+
+CLOUDINARY_STORAGE = {
+    'CLOUD_NAME': env.str('CLOUD_NAME'),
+    'API_KEY': env.str('CLOUDINARY_API_KEY'),
+    'API_SECRET': env.str('CLOUDINARY_API_SECRET')
+}
 
 # REST framework settings
 
