@@ -10,10 +10,13 @@ class FileSerializer(serializers.ModelSerializer):
     Serializer for File model
     """
     user = UserSerializer(read_only=True)
-    # Changing the serializer field to FileField to ensure the API can accept files of any type
-    # without encountering errors.
     file = serializers.FileField()
 
     class Meta:
         model = File
         fields = '__all__'
+
+    def get_file(self, document):
+        request = self.context.get('request')
+        file_url = document.file.url
+        return request.build_absolute_uri(file_url)
