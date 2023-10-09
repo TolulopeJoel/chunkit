@@ -1,27 +1,10 @@
 import uuid
-from datetime import datetime
 
 from cloudinary.models import CloudinaryField
 from django.contrib.auth import get_user_model
 from django.db import models
 
-
-def get_folder_path():
-    """
-    Generate a folder path for cloudinary file based
-    on the current date and week number.
-    """
-
-    # Current date and time
-    now = datetime.now()
-
-    # Calculate the week number of current month
-    day_of_month = datetime.now().day
-    week_number = (day_of_month - 1) // 7 + 1
-
-    folder_path = f'media/files/{now.year}/{now.month}/{week_number}'
-
-    return folder_path
+from .utils import get_folder_path
 
 
 class File(models.Model):
