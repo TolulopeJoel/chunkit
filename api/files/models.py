@@ -25,11 +25,13 @@ class File(models.Model):
         on_delete=models.CASCADE,
         related_name='uploaded_files'
     )
-    name = models.CharField(max_length=255, blank=True, null=False)
-    file = CloudinaryField(
+    url = CloudinaryField(
         folder=get_folder_path(),
         resource_type='auto'
     )
+    name = models.CharField(max_length=255, blank=True, null=False)
+    type = models.CharField(max_length=10, blank=True, null=False)
+    size = models.CharField(max_length=13, blank=True, null=False)
 
     uploaded_at = models.DateTimeField(auto_now_add=True)
 
