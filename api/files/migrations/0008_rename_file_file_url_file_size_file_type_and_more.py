@@ -6,7 +6,7 @@ from django.db import migrations, models
 class Migration(migrations.Migration):
 
     dependencies = [
-        ('files', '0007_chunk'),
+        ('files', '0006_alter_file_file_alter_file_name_alter_file_user'),
     ]
 
     operations = [
@@ -24,8 +24,5 @@ class Migration(migrations.Migration):
             model_name='file',
             name='type',
             field=models.CharField(blank=True, max_length=10),
-        ),
-        migrations.DeleteModel(
-            name='Chunk',
         ),
     ]
