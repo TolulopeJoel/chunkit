@@ -17,14 +17,19 @@ class FileListCreateView(generics.ListCreateAPIView):
         """
 
         name = serializer.validated_data.get('name')
-        file = str(self.request.data.get('file'))
+        file = self.request.data.get('url')
 
         # add extension to file name
-        file_extension = file.split('.')[-1]
+        file_extension = str(file).split('.')[-1]
         file_name = f'{name}.{file_extension}'
 
         # return default file name from file if name not provided
         if not name:
             file_name = str(file)
 
-        return serializer.save(name=file_name, user=self.request.user)
+        return serializer.save(
+            name=file_name,
+            size=file.size,
+            type=file_extension,
+            user=self.request.user
+        )
