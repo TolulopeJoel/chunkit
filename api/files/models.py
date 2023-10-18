@@ -25,7 +25,7 @@ class UploadedFile(models.Model):
         on_delete=models.CASCADE,
         related_name='uploaded_files'
     )
-    url = CloudinaryField(
+    file = CloudinaryField(
         folder=get_folder_path("uploaded_files"),
         resource_type='auto'
     )
