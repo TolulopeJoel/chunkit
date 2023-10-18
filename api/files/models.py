@@ -26,7 +26,7 @@ class UploadedFile(models.Model):
         related_name='uploaded_files'
     )
     url = CloudinaryField(
-        folder=get_folder_path(),
+        folder=get_folder_path("uploaded_files"),
         resource_type='auto'
     )
     name = models.CharField(max_length=255, blank=True, null=False)
@@ -37,3 +37,26 @@ class UploadedFile(models.Model):
 
     def __str__(self):
         return self.name
+
+
+class Chunk(models.Model):
+    """
+    Represents a chunk of an uploaded file.
+
+    This model stores information about each chunk of an uploaded file, including its position within the file,
+    a reference to the original uploaded file, and the URL where the chunk is stored in Cloudinary.
+    """
+
+    position = models.PositiveIntegerField()
+    uploaded_file = models.ForeignKey(
+        UploadedFile,
+        on_delete=models.CASCADE,
+        related_name="file_chunks"
+    )
+    chunk_url = CloudinaryField(
+        folder=get_folder_path("file_chunks"),
+        resource_type='auto'
+    )
+
+    def __str__(self):
+        return f"{self.uploaded_file} chunk"
