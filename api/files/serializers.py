@@ -10,7 +10,7 @@ class FileSerializer(serializers.ModelSerializer):
     Serializer for File model
     """
     user = UserSerializer(read_only=True)
-    url = serializers.FileField()
+    file = serializers.FileField()
 
     class Meta:
         model = UploadedFile

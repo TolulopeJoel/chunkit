@@ -17,7 +17,7 @@ class FileListCreateView(generics.ListCreateAPIView):
         """
 
         name = serializer.validated_data.get('name')
-        file = self.request.data.get('url')
+        file = self.request.data.get('file')
 
         # add extension to file name
         file_extension = str(file).split('.')[-1]

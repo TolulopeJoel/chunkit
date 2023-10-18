@@ -25,7 +25,7 @@ class UploadedFile(models.Model):
         on_delete=models.CASCADE,
         related_name='uploaded_files'
     )
-    url = CloudinaryField(
+    file = CloudinaryField(
         folder=get_folder_path("uploaded_files"),
         resource_type='auto'
     )
@@ -53,7 +53,7 @@ class Chunk(models.Model):
         on_delete=models.CASCADE,
         related_name="file_chunks"
     )
-    chunk_url = CloudinaryField(
+    chunk_file = CloudinaryField(
         folder=get_folder_path("file_chunks"),
         resource_type='auto'
     )
