@@ -1,13 +1,13 @@
 from rest_framework import generics
 
-from .models import File
+from .models import UploadedFile
 from .serializers import FileSerializer
 
 
 class FileListCreateView(generics.ListCreateAPIView):
     """View for listing and creating File objects."""
 
-    queryset = File.objects.all()
+    queryset = UploadedFile.objects.all()
     serializer_class = FileSerializer
 
     def perform_create(self, serializer):

@@ -2,7 +2,7 @@ from rest_framework import serializers
 
 from accounts.serializers import UserSerializer
 
-from .models import File
+from .models import UploadedFile
 
 
 class FileSerializer(serializers.ModelSerializer):
@@ -13,7 +13,7 @@ class FileSerializer(serializers.ModelSerializer):
     url = serializers.FileField()
 
     class Meta:
-        model = File
+        model = UploadedFile
         fields = '__all__'
 
     def get_file(self, document):

@@ -7,13 +7,13 @@ from django.db import models
 from .utils import get_folder_path
 
 
-class File(models.Model):
+class UploadedFile(models.Model):
     """
     A model to represent files uploaded by users.
-
     This model stores information about uploaded files, including the user who uploaded them,
     the name of the file, and the file itself.
     """
+
     id = models.UUIDField(
         primary_key=True,
         default=uuid.uuid4,
