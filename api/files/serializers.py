@@ -1,8 +1,7 @@
 from rest_framework import serializers
 
-from accounts.serializers import UserSerializer
-
 from .models import Chunk, UploadedFile
+from accounts.serializers import UserSerializer
 
 
 class UploadedFileSerializer(serializers.ModelSerializer):
@@ -28,12 +27,37 @@ class ChunkSerializer(serializers.ModelSerializer):
     """
     uploaded_file = UploadedFileSerializer(read_only=True)
     chunk_file = serializers.SerializerMethodField()
+    position = serializers.IntegerField(read_only=True)
 
     class Meta:
         model = Chunk
         fields = '__all__'
 
+    def create(self, validated_data):
+        request = self.context.get('request')
+        uploaded_file_id = request.data.get('uploaded_file_id')
+
+        if uploaded_file_id:
+            try:
+                uploaded_file = UploadedFile.objects.get(id=uploaded_file_id)
+
+                # temporary solution to chunk file
+                validated_data['uploaded_file'] = uploaded_file
+                validated_data['chunk_file'] = None
+                validated_data['position'] = 1
+
+                chunk = Chunk.objects.create(**validated_data)
+
+                return chunk
+            except UploadedFile.DoesNotExist:
+                raise serializers.ValidationError({"detail": "Uploaded file not found."})
+
+        return None
+
     def get_chunk_file(self, object):
         request = self.context.get('request')
-        file_url = object.chunk_file.url
-        return request.build_absolute_uri(file_url)
+        file = object.chunk_file
+        
+        if file is not None:
+            return request.build_absolute_uri(file.url)
+
