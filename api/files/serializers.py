@@ -5,7 +5,7 @@ from accounts.serializers import UserSerializer
 from .models import UploadedFile
 
 
-class FileSerializer(serializers.ModelSerializer):
+class UploadedFileSerializer(serializers.ModelSerializer):
     """
     Serializer for File model
     """
