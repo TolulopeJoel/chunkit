@@ -1,14 +1,14 @@
 from rest_framework import generics
 
 from .models import UploadedFile
-from .serializers import FileSerializer
+from .serializers import UploadedFileSerializer
 
 
-class FileListCreateView(generics.ListCreateAPIView):
+class UploadedFileListCreateView(generics.ListCreateAPIView):
     """View for listing and creating File objects."""
 
     queryset = UploadedFile.objects.all()
-    serializer_class = FileSerializer
+    serializer_class = UploadedFileSerializer
 
     def perform_create(self, serializer):
         """
@@ -17,7 +17,7 @@ class FileListCreateView(generics.ListCreateAPIView):
         """
 
         name = serializer.validated_data.get('name')
-        file = self.request.data.get('url')
+        file = self.request.data.get('file')
 
         # add extension to file name
         file_extension = str(file).split('.')[-1]
