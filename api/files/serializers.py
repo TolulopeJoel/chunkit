@@ -50,14 +50,21 @@ class ChunkSerializer(serializers.ModelSerializer):
 
                 return chunk
             except UploadedFile.DoesNotExist:
-                raise serializers.ValidationError({"detail": "Uploaded file not found."})
+                raise serializers.ValidationError(
+                    {"detail": "The provided uploaded file could not be found."}
+                )
+            except ValueError:
+                raise serializers.ValidationError(
+                    {"detail": "Invalid data provided."}
+                )
 
-        return None
+        raise serializers.ValidationError(
+            {"detail": "Failed to create a chunk. Upload a file."}
+        )
 
     def get_chunk_file(self, object):
         request = self.context.get('request')
         file = object.chunk_file
-        
+
         if file is not None:
             return request.build_absolute_uri(file.url)
-
