@@ -14,12 +14,6 @@ class UploadedFile(models.Model):
     the name of the file, and the file itself.
     """
 
-    id = models.UUIDField(
-        primary_key=True,
-        default=uuid.uuid4,
-        editable=False,
-        unique=True
-    )
     user = models.ForeignKey(
         get_user_model(),
         on_delete=models.CASCADE,
