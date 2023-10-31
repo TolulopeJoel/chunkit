@@ -27,9 +27,7 @@ def split_pdf(file_path, num_chunks):
             chunk_pdf = PdfWriter()
 
             # Adjust 'end' if it exceeds total pages
-            if end > total_pages:
-                end = total_pages
-
+            end = min(end, total_pages)
             for page_num in range(start, end):
                 page = pdf.pages[page_num]
                 chunk_pdf.add_page(page)

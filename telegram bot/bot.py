@@ -111,12 +111,14 @@ def confirm_chunks(update, context):
 def get_split_function(file_path):
     file_extension = os.path.splitext(file_path)[1]
 
-    for extension_type, extensions in file_extensions.items():
-        if file_extension in extensions:
-            # return split function type
-            return file_handlers.get(extension_type)
-
-    return None
+    return next(
+        (
+            file_handlers.get(extension_type)
+            for extension_type, extensions in file_extensions.items()
+            if file_extension in extensions
+        ),
+        None,
+    )
 
 
 def delete_chunks_folders():
