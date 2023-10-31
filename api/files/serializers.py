@@ -37,9 +37,7 @@ class ChunkSerializer(serializers.ModelSerializer):
 
     def create(self, validated_data):
         request = self.context.get('request')
-        uploaded_file_id = request.data.get('uploaded_file_id')
-
-        if uploaded_file_id:
+        if uploaded_file_id := request.data.get('uploaded_file_id'):
             try:
                 uploaded_file = UploadedFile.objects.get(id=uploaded_file_id)
 

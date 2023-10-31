@@ -20,7 +20,7 @@ def split_image(object, num_chunks=2):
     chunk_height = (image_height + num_chunks_vertical -
                     1) // num_chunks_vertical
 
-    chunks_folder_name = image_file.name + '_chunks'
+    chunks_folder_name = f'{image_file.name}_chunks'
     os.makedirs(chunks_folder_name, exist_ok=True)
 
     count = 0
