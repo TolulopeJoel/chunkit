@@ -1,8 +1,10 @@
+import cloudinary
 from rest_framework import serializers
 
 from .models import Chunk, UploadedFile
-from accounts.serializers import UserSerializer
+from .services import split_image
 
+from accounts.serializers import UserSerializer
 
 class UploadedFileSerializer(serializers.ModelSerializer):
     """
@@ -43,12 +45,22 @@ class ChunkSerializer(serializers.ModelSerializer):
 
                 # temporary solution to chunk file
                 validated_data['uploaded_file'] = uploaded_file
-                validated_data['chunk_file'] = None
-                validated_data['position'] = 1
 
-                chunk = Chunk.objects.create(**validated_data)
+                chunk_obj = Chunk(**validated_data)
 
-                return chunk
+                # TODO: Add support for other file types
+                chunked_files = split_image(chunk_obj)
+
+                for i, j in enumerate(chunked_files):
+                    upload_data = cloudinary.uploader.upload(j)
+
+                    validated_data['chunk_file'] = upload_data['secure_url']
+                    validated_data['position'] = i + 1
+
+                    last_chunk = Chunk(**validated_data)
+                    last_chunk.save()
+
+                return last_chunk
             except UploadedFile.DoesNotExist:
                 raise serializers.ValidationError(
                     {"detail": "The provided uploaded file could not be found."}
