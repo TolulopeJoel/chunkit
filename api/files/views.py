@@ -1,7 +1,7 @@
 from rest_framework import generics
 
-from .models import UploadedFile
-from .serializers import UploadedFileSerializer
+from .models import Chunk, UploadedFile
+from .serializers import ChunkSerializer, UploadedFileSerializer
 
 
 class UploadedFileListCreateView(generics.ListCreateAPIView):
@@ -33,3 +33,8 @@ class UploadedFileListCreateView(generics.ListCreateAPIView):
             type=file_extension,
             user=self.request.user
         )
+
+
+class ChunkListCreateView(generics.ListCreateAPIView):
+    queryset = Chunk.objects.all()
+    serializer_class = ChunkSerializer
