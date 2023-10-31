@@ -6,8 +6,6 @@ from utils import get_chunks_folder_name
 
 
 def split_image(file_path, num_chunks):
-    file_name = get_chunks_folder_name(file_path)[0]
-    file_extension = get_chunks_folder_name(file_path)[1]
 
     image = Image.open(file_path)
     image_width, image_height = image.size
@@ -18,7 +16,8 @@ def split_image(file_path, num_chunks):
     chunk_width = (image_width + num_chunks_horizontal - 1) // num_chunks_horizontal
     chunk_height = (image_height + num_chunks_vertical - 1) // num_chunks_vertical
 
-    chunks_folder_name = file_name + '_chunks'
+    file_name = get_chunks_folder_name(file_path)[0]
+    chunks_folder_name = f'{file_name}_chunks'
     os.makedirs(chunks_folder_name, exist_ok=True)
 
     count = 0
@@ -34,6 +33,7 @@ def split_image(file_path, num_chunks):
             chunk = image.crop((left, upper, right, lower))
             chunk_file_path = os.path.join(
                 chunks_folder_name,
+                file_extension = get_chunks_folder_name(file_path)[1]
                 f'{file_name}.chunk{count+1}{file_extension}'
             )
             chunk.save(chunk_file_path)
