@@ -7,21 +7,19 @@ from PIL import Image
 def split_image(object, num_chunks=2):
     image_file = object.uploaded_file
 
-    print((image_file.file), 'hiiiii')
-
     image = Image.open(requests.get(image_file.file.url, stream=True).raw)
     image_width, image_height = image.size
 
-    num_chunks_horizontal = int(num_chunks ** 0.5)
-    num_chunks_vertical = num_chunks // num_chunks_horizontal
+    num_chunks_vertical = int(num_chunks ** 0.5)
+    num_chunks_horizontal = num_chunks // num_chunks_vertical
 
     chunk_width = (image_width + num_chunks_horizontal -
                    1) // num_chunks_horizontal
     chunk_height = (image_height + num_chunks_vertical -
                     1) // num_chunks_vertical
 
-    chunks_folder_name = image_file.name + '_chunks'
-    os.makedirs(chunks_folder_name, exist_ok=True)
+    chunks_folder = f'{image_file.name}_chunks'
+    os.makedirs(chunks_folder, exist_ok=True)
 
     count = 0
     chunk_files = []
@@ -35,7 +33,7 @@ def split_image(object, num_chunks=2):
 
             chunk = image.crop((left, upper, right, lower))
             chunk_file_path = os.path.join(
-                chunks_folder_name,
+                chunks_folder,
                 f'{image_file.name}.chunk{count+1}.{image_file.type}'
             )
             chunk.save(chunk_file_path)
