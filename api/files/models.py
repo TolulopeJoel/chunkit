@@ -9,9 +9,7 @@ from .utils import get_folder_path
 
 class UploadedFile(models.Model):
     """
-    A model to represent files uploaded by users.
-    This model stores information about uploaded files, including the user who uploaded them,
-    the name of the file, and the file itself.
+    Model representing an uploaded file.
     """
 
     user = models.ForeignKey(
@@ -35,10 +33,7 @@ class UploadedFile(models.Model):
 
 class Chunk(models.Model):
     """
-    Represents a chunk of an uploaded file.
-
-    This model stores information about each chunk of an uploaded file, including its position within the file,
-    a reference to the original uploaded file, and the URL where the chunk is stored in Cloudinary.
+    Model representing a chunk of an uploaded file.
     """
 
     position = models.PositiveIntegerField()
