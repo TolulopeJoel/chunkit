@@ -16,16 +16,10 @@ class UploadedFileListCreateView(generics.ListCreateAPIView):
         processing the file name and associating it with the current user.
         """
 
-        name = serializer.validated_data.get('name')
         file = self.request.data.get('file')
-
-        # add extension to file name
-        file_extension = str(file).split('.')[-1]
-        file_name = f'{name}.{file_extension}'
-
-        # return default file name from file if name not provided
-        if not name:
-            file_name = str(file)
+        f = str(file).split('.')
+        file_extension = f[-1]
+        file_name = serializer.validated_data.get('name') or ''.join(f[:-1])
 
         return serializer.save(
             name=file_name,
