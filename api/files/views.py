@@ -69,7 +69,7 @@ class ChunkListCreateView(generics.ListCreateAPIView):
                     {"detail": "The provided uploaded file could not be found."},
                     status=status.HTTP_400_BAD_REQUEST
                 )
-            except ValueError:
+            except (ValueError, SystemError):
                 return Response(
                     {"detail": "Invalid data provided."},
                     status=status.HTTP_400_BAD_REQUEST
