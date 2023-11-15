@@ -1,10 +1,6 @@
-import shutil
-
-import cloudinary
 from rest_framework import serializers
 
 from .models import Chunk, UploadedFile
-from .services import split_image
 
 from accounts.serializers import UserSerializer
 
