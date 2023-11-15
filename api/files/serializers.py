@@ -26,10 +26,13 @@ class ChunkSerializer(serializers.ModelSerializer):
     """
     Serializer for the Chunk model.
     """
-    uploaded_file = UploadedFileSerializer(read_only=True)
     chunk_file = serializers.URLField(read_only=True)
     position = serializers.IntegerField(read_only=True)
 
     class Meta:
         model = Chunk
-        fields = '__all__'
+        fields = [
+            "id",
+            "chunk_file",
+            "position",
+        ]
