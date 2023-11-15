@@ -5,13 +5,15 @@ from rest_framework_simplejwt.views import (
     TokenVerifyView,
 )
 
+from .views import CustomTokenObtainPairView
+
 from . import views
 
 urlpatterns = [
     path('users/', views.UserListView.as_view(), name='users-list'),
 
     # Endpoint to obtain a JWT token
-    path('token/', TokenObtainPairView.as_view(), name='token_obtain_pair'),
+    path('token/', CustomTokenObtainPairView.as_view(), name='token_obtain_pair'),
 
     # Endpoint to refresh an expired JWT token
     path('token/refresh/', TokenRefreshView.as_view(), name='token_refresh'),
