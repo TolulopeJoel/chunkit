@@ -54,6 +54,7 @@ INSTALLED_APPS = [
     # 3rd party libraries
     'cloudinary',
     'rest_framework',
+    'drf_spectacular',
     'rest_framework_simplejwt',
 ]
 
@@ -162,7 +163,8 @@ REST_FRAMEWORK = {
     'DEFAULT_AUTHENTICATION_CLASSES': [
         'rest_framework_simplejwt.authentication.JWTAuthentication',
     ],
-    'DEFAULT_RENDERER_CLASSES': ('rest_framework.renderers.JSONRenderer',)
+    'DEFAULT_RENDERER_CLASSES': ('rest_framework.renderers.JSONRenderer',),
+    'DEFAULT_SCHEMA_CLASS': 'drf_spectacular.openapi.AutoSchema',
 }
 
 # Simple JWT settings
@@ -170,4 +172,11 @@ REST_FRAMEWORK = {
 SIMPLE_JWT = {
     'ACCESS_TOKEN_LIFETIME': timedelta(minutes=30),
     'REFRESH_TOKEN_LIFETIME': timedelta(days=1),
+}
+
+SPECTACULAR_SETTINGS = {
+    'TITLE': 'Chunkit',
+    'DESCRIPTION': '',
+    'VERSION': '1.0',
+    'SWAGGER_UI_FAVICON_HREF': STATIC_URL + "chunkit_favicon.png",
 }
