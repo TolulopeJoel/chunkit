@@ -53,6 +53,8 @@ class ChunkListCreateView(generics.ListCreateAPIView):
         """
 
         uploaded_file_id = request.data.get('uploaded_file_id')
+        num_chunks = request.data.get('num_chunks') or 2
+
         serializer = self.get_serializer(data=request.data)
         serializer.is_valid(raise_exception=True)
         validated_data = serializer.validated_data
@@ -62,13 +64,15 @@ class ChunkListCreateView(generics.ListCreateAPIView):
 
             try:
                 return split_uploaded_file(
-                    uploaded_file_id, validated_data, 21, created_chunks
+                    uploaded_file_id, validated_data, num_chunks, created_chunks
                 )
+
             except UploadedFile.DoesNotExist:
                 return Response(
                     {"detail": "The provided uploaded file could not be found."},
                     status=status.HTTP_400_BAD_REQUEST
                 )
+
             except (ValueError, SystemError):
                 return Response(
                     {"detail": "Invalid data provided."},

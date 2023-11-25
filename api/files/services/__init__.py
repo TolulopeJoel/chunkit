@@ -15,13 +15,12 @@ from .text_services import split_text
 from .video_services import split_video
 
 FILE_EXTENSIONS = {
-    "image": (".jpg", ".jpeg", ".png", ".webp", ".svg", ".gif", ".bmp", ".ico", ".tiff"),
-    "video": (".mp4", ".mkv", ".avi", ".mov", ".wmv", ".flv", ".m4v"),
-    "archive": (".tar", ".gz", ".zip", ".rar", ".7z"),
-    "text": (".txt", ".csv"),
-    "pdf": (".pdf"),
+    "image": ("jpg", "jpeg", "png", "webp", "svg", "gif", "bmp", "ico", "tiff"),
+    "video": ("mp4", "mkv", "avi", "mov", "wmv", "flv", "m4v"),
+    "archive": ("tar", "gz", "zip", "rar", "7z"),
+    "text": ("txt", "csv"),
+    "pdf": ("pdf"),
 }
-
 FILE_HANDLERS = {
     "image": split_image,
     "archive": split_archive,
@@ -31,29 +30,30 @@ FILE_HANDLERS = {
 }
 
 
-def get_split_function(file_path):
-    file_extension = os.path.splitext(file_path)[1]
+def get_file_splitter(file_object):
+    """Determine and return the appropriate file splitting function based
+    uploaded file type
 
+    Args:
+        file_object: An instance of UploadedFile representing the uploaded file
+
+    Returns:
+        callable or None: The file splitting function corresponding to the file type, or None if not found.
+    """
     return next(
         (
             FILE_HANDLERS.get(extension_type)
             for extension_type, extensions in FILE_EXTENSIONS.items()
-            if file_extension in extensions
+            if file_object.type in extensions
         ),
         None,
     )
 
 
-
-
 def split_uploaded_file(
-    uploaded_file_id: int,
-    validated_data: dict,
-    num_chunks: int,
-    created_chunks: list,
-) -> Response:
-    """Split an uploaded file into multiple chunks and upload them to a cloud
-    storage service.
+    uploaded_file_id, validated_data, num_chunks, created_chunks
+):
+    """Splits uploaded file into chunks and upload them to cloudinary
 
     Args:
         uploaded_file_id (int): The ID of the uploaded file.
@@ -69,13 +69,14 @@ def split_uploaded_file(
         DoesNotExist: If the uploaded file with the given ID does not exist.
     """
 
-    validated_data["uploaded_file"] = UploadedFile.objects.get(
-        id=uploaded_file_id
+    uploaded_file = (
+        UploadedFile.objects
+        .filter(id=uploaded_file_id).first()
     )
 
-    # TODO: Add support for other file types
-    chunk_obj = Chunk(**validated_data)
-    chunked_files = split_image(chunk_obj, num_chunks)
+    validated_data["uploaded_file"] = uploaded_file
+    splitter = get_file_splitter(uploaded_file)
+    chunked_files = splitter(uploaded_file, num_chunks)
 
     with concurrent.futures.ThreadPoolExecutor() as executor:
         futures = [
@@ -86,15 +87,15 @@ def split_uploaded_file(
         ]
         concurrent.futures.wait(futures)
 
-    shutil.rmtree(f"{chunk_obj.uploaded_file.name}_chunks")
+    shutil.rmtree(f"{uploaded_file.name}_chunks")
 
     response_data = {
-        "uploaded_file": UploadedFileSerializer(chunk_obj.uploaded_file).data,
+        "uploaded_file": UploadedFileSerializer(uploaded_file).data,
         "chunk_files": ChunkSerializer(created_chunks, many=True).data
     }
 
     return Response(
-        response_data,
+        data=response_data,
         status=status.HTTP_201_CREATED,
     )
 
