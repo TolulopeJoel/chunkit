@@ -1,12 +1,49 @@
 import concurrent.futures
+import os
 import shutil
 
 import cloudinary
 from rest_framework.views import Response, status
 
-from .models import Chunk, UploadedFile
-from .serializers import ChunkSerializer, UploadedFileSerializer
-from .utils import get_folder_path, split_image
+from ..models import Chunk, UploadedFile
+from ..serializers import ChunkSerializer, UploadedFileSerializer
+from ..utils import get_folder_path
+from .archive_services import split_archive
+from .image_services import split_image
+from .pdf_services import split_pdf
+from .text_services import split_text
+from .video_services import split_video
+
+FILE_EXTENSIONS = {
+    "image": (".jpg", ".jpeg", ".png", ".webp", ".svg", ".gif", ".bmp", ".ico", ".tiff"),
+    "video": (".mp4", ".mkv", ".avi", ".mov", ".wmv", ".flv", ".m4v"),
+    "archive": (".tar", ".gz", ".zip", ".rar", ".7z"),
+    "text": (".txt", ".csv"),
+    "pdf": (".pdf"),
+}
+
+FILE_HANDLERS = {
+    "image": split_image,
+    "archive": split_archive,
+    "video": split_video,
+    "text": split_text,
+    "pdf": split_pdf,
+}
+
+
+def get_split_function(file_path):
+    file_extension = os.path.splitext(file_path)[1]
+
+    return next(
+        (
+            FILE_HANDLERS.get(extension_type)
+            for extension_type, extensions in FILE_EXTENSIONS.items()
+            if file_extension in extensions
+        ),
+        None,
+    )
+
+
 
 
 def split_uploaded_file(
