@@ -31,7 +31,7 @@ class UploadedFileListCreateView(generics.ListCreateAPIView):
         )
 
 
-class ChunkListCreateView(generics.ListCreateAPIView):
+class ChunkCreateView(generics.CreateAPIView):
     """
     A view for listing and creating Chunk instances.
     """
