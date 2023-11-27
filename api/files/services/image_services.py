@@ -5,7 +5,8 @@ from PIL import Image
 
 
 def split_image(file_object, num_chunks=2):
-    """Split an image into multiple chunks.
+    """
+    Split an image into multiple chunks.
 
     Args:
         object: The chunk object containing the uploaded file.
@@ -21,9 +22,6 @@ def split_image(file_object, num_chunks=2):
             '/path/to/image_chunks/image.chunk2.png'
         ]
     """
-
-    image_file = file_object
-
     image = Image.open(requests.get(file_object.file.url, stream=True).raw)
     image_width, image_height = image.size
 
