@@ -33,7 +33,7 @@ class UploadedFileListCreateView(generics.ListCreateAPIView):
 
 class ChunkCreateView(generics.CreateAPIView):
     """
-    A view for listing and creating Chunk instances.
+    A view for creating Chunk instances.
     """
 
     queryset = Chunk.objects.all()
@@ -83,3 +83,39 @@ class ChunkCreateView(generics.CreateAPIView):
             {"detail": "Failed to create a chunk. Upload a file."},
             status=status.HTTP_400_BAD_REQUEST
         )
+
+
+class ChunkListView(generics.ListAPIView):
+    """
+    A view for retrieving a list of chunks associated with an uploaded file.
+    """
+
+    queryset = Chunk.objects.all()
+    serializer_class = ChunkSerializer
+
+    def list(self, request, *args, **kwargs):
+        """
+        Retrieves a list of chunks associated with an uploaded file.
+
+        Explanation:
+        This function retrieves the chunks associated with an uploaded file identified
+        by the file ID provided in the URL parameters.
+
+        Returns:
+        - A response with the serialized data of the uploaded file and its associated chunks if file is found.
+        - A response with a 404 error and a message indicating that the uploaded file was not found if file is notfound.
+        """
+
+        file_id = kwargs['file_id']
+        uploaded_file = UploadedFile.objects.filter(id=file_id).first()
+
+        if uploaded_file is not None:
+            chunks = uploaded_file.file_chunks.all()
+
+            data = {
+                "uploaded_file": UploadedFileSerializer(uploaded_file).data,
+                "chunks": ChunkSerializer(chunks, many=True).data
+            }
+
+            return Response(data, status=status.HTTP_200_OK)
+        return Response({"detail": "Uploaded file not found"}, status=status.HTTP_404_NOT_FOUND)
