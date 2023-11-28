@@ -1,4 +1,4 @@
-from rest_framework import generics
+from rest_framework.generics import CreateAPIView, ListAPIView, ListCreateAPIView
 from rest_framework.views import Response, status
 
 from .models import Chunk, UploadedFile
@@ -6,9 +6,10 @@ from .serializers import ChunkSerializer, UploadedFileSerializer
 from .services import split_uploaded_file
 
 
-class UploadedFileListCreateView(generics.ListCreateAPIView):
-    """View for listing and creating File objects."""
-
+class UploadedFileListCreateView(ListCreateAPIView):
+    """
+    View for listing and creating File objects.
+    """
     queryset = UploadedFile.objects.all()
     serializer_class = UploadedFileSerializer
 
@@ -17,7 +18,6 @@ class UploadedFileListCreateView(generics.ListCreateAPIView):
         Create a new File object with the provided data, including
         processing the file name and associating it with the current user.
         """
-
         file = self.request.data.get('file')
         f = str(file).split('.')
         file_extension = f[-1]
@@ -30,12 +30,15 @@ class UploadedFileListCreateView(generics.ListCreateAPIView):
             user=self.request.user
         )
 
+    def get_queryset(self):
+        user = self.request.user
+        return super().get_queryset().filter(user=user)
 
-class ChunkCreateView(generics.CreateAPIView):
+
+class ChunkCreateView(CreateAPIView):
     """
     A view for creating Chunk instances.
     """
-
     queryset = Chunk.objects.all()
     serializer_class = ChunkSerializer
 
@@ -51,7 +54,6 @@ class ChunkCreateView(generics.CreateAPIView):
             ValueError: If invalid data is provided.
             UploadedFile.DoesNotExist: If the provided uploaded file could not be found.
         """
-
         uploaded_file_id = request.data.get('uploaded_file_id')
         num_chunks = request.data.get('num_chunks') or 2
 
@@ -85,11 +87,10 @@ class ChunkCreateView(generics.CreateAPIView):
         )
 
 
-class ChunkListView(generics.ListAPIView):
+class ChunkListView(ListAPIView):
     """
     A view for retrieving a list of chunks associated with an uploaded file.
     """
-
     queryset = Chunk.objects.all()
     serializer_class = ChunkSerializer
 
@@ -105,9 +106,9 @@ class ChunkListView(generics.ListAPIView):
         - A response with the serialized data of the uploaded file and its associated chunks if file is found.
         - A response with a 404 error and a message indicating that the uploaded file was not found if file is notfound.
         """
-
         file_id = kwargs['file_id']
-        uploaded_file = UploadedFile.objects.filter(id=file_id).first()
+        uploaded_file = UploadedFile.objects.filter(
+            id=file_id, user=self.request.user).first()
 
         if uploaded_file is not None:
             chunks = uploaded_file.file_chunks.all()

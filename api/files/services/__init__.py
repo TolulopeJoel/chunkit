@@ -1,5 +1,4 @@
 import concurrent.futures
-import os
 import shutil
 
 import cloudinary
@@ -19,8 +18,9 @@ FILE_EXTENSIONS = {
     "video": ("mp4", "mkv", "avi", "mov", "wmv", "flv", "m4v"),
     "archive": ("tar", "gz", "zip", "rar", "7z"),
     "text": ("txt", "csv"),
-    "pdf": ("pdf"),
+    "pdf": ("pdf",),
 }
+
 FILE_HANDLERS = {
     "image": split_image,
     "archive": split_archive,
@@ -89,19 +89,18 @@ def split_uploaded_file(
 
     shutil.rmtree(f"{uploaded_file.name}_chunks")
 
-    response_data = {
+    data = {
         "uploaded_file": UploadedFileSerializer(uploaded_file).data,
         "chunk_files": ChunkSerializer(created_chunks, many=True).data
     }
 
-    return Response(
-        data=response_data,
-        status=status.HTTP_201_CREATED,
-    )
+    return Response(data, status=status.HTTP_201_CREATED)
 
 
 def process_chunk(validated_data, index, file, created_chunks):
-    """This function handles each chunk processing"""
+    """
+    This function handles each chunk processing
+    """
     upload_data = cloudinary.uploader.upload(
         file,
         resource_type="auto",
