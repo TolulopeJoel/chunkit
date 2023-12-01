@@ -1,15 +1,14 @@
 import os
 
-import requests
 from moviepy.editor import VideoFileClip
 
 
 def split_video(file_object, num_chunks=2):
-    video_file = requests.get(file_object.file.url, stream=True).raw
+    video = VideoFileClip(file_object.file.url)
 
-    video = VideoFileClip(video_file)
     duration = video.duration
     chunk_duration = duration / num_chunks
+
     if duration % chunk_duration != 0:
         num_chunks += 1
 
