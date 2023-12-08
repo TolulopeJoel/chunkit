@@ -15,4 +15,12 @@ class CustomTokenObtainPairView(TokenObtainPairView):
 class UserListView(generics.ListAPIView):
     queryset = get_user_model().objects.all()
     serializer_class = UserSerializer
-    permission_classes = [permissions.IsAuthenticated]
+    permission_classes = [permissions.IsAdminUser]
+
+
+class SignUpView(generics.CreateAPIView):
+    """
+    View to register new users.
+    """
+    serializer_class = UserSerializer
+    permission_classes = [permissions.AllowAny]
