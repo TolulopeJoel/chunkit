@@ -62,11 +62,9 @@ class ChunkCreateView(CreateAPIView):
         validated_data = serializer.validated_data
 
         if uploaded_file_id:
-            created_chunks = []  # List to store created chunks
-
             try:
                 return split_uploaded_file(
-                    uploaded_file_id, validated_data, num_chunks, created_chunks
+                    uploaded_file_id, validated_data, num_chunks
                 )
 
             except UploadedFile.DoesNotExist:

@@ -51,15 +51,15 @@ def get_file_splitter(file_object):
 
 
 def split_uploaded_file(
-    uploaded_file_id, validated_data, num_chunks, created_chunks
+    uploaded_file_id, validated_data, num_chunks
 ):
-    """Splits uploaded file into chunks and upload them to cloudinary
+    """
+    Splits uploaded file into chunks and upload them to cloudinary
 
     Args:
         uploaded_file_id (int): The ID of the uploaded file.
         validated_data (dict): The validated data for creating the chunks.
         num_chunks (int): The number of chunks to split the file into.
-        created_chunks (list): A list to store the created chunk objects.
 
     Returns:
         Response: A response object containing the serialized data
@@ -68,6 +68,7 @@ def split_uploaded_file(
     Raises:
         DoesNotExist: If the uploaded file with the given ID does not exist.
     """
+    created_chunks = []  # List to store created chunks
 
     uploaded_file = (
         UploadedFile.objects
@@ -77,7 +78,7 @@ def split_uploaded_file(
     validated_data["uploaded_file"] = uploaded_file
     splitter = get_file_splitter(uploaded_file)
     chunked_files = splitter(uploaded_file, num_chunks)
-    
+
     if type(chunked_files) == str:
         return Response(
             {
@@ -87,16 +88,20 @@ def split_uploaded_file(
             status=status.HTTP_400_BAD_REQUEST
         )
 
-    with concurrent.futures.ThreadPoolExecutor() as executor:
-        futures = [
-            executor.submit(
-                process_chunk, validated_data, index, file, created_chunks
-            )
-            for index, file in enumerate(chunked_files)
-        ]
-        concurrent.futures.wait(futures)
+    # delete existing chunks and create new ones
+    no_old_chunks = delete_chunks(uploaded_file)
 
-    shutil.rmtree(f"{uploaded_file.name}_chunks")
+    if no_old_chunks:
+        with concurrent.futures.ThreadPoolExecutor() as executor:
+            futures = [
+                executor.submit(
+                    process_chunk, validated_data, index, file, created_chunks
+                )
+                for index, file in enumerate(chunked_files)
+            ]
+            concurrent.futures.wait(futures)
+
+        shutil.rmtree(f"{uploaded_file.name}_chunks")
 
     data = {
         "status": "success",
@@ -126,3 +131,17 @@ def process_chunk(validated_data, index, file, created_chunks):
     chunk = Chunk(**validated_data)
     chunk.save()
     created_chunks.append(chunk)
+
+
+def delete_chunks(uploaded_file):
+    """
+    This function deletes chunks of an uploaded file.
+    """
+    try:
+        chunks = uploaded_file.file_chunks.all()
+
+        if chunks.exists():
+            chunks.delete()
+        return True
+    except:
+        return False
