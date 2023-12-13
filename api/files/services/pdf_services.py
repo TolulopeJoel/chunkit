@@ -17,7 +17,6 @@ def split_pdf(file_object, num_chunks=2):
         list: A list of file paths for the generated PDF chunks.
     """
     chunks_folder = f"{file_object.name}_chunks"
-    os.makedirs(chunks_folder, exist_ok=True)
 
     return split_and_save_pdf(
         file_object, num_chunks, chunks_folder
@@ -55,6 +54,7 @@ def split_and_save_pdf(file_object, num_chunks, chunks_folder):
             page = pdf.pages[page_num]
             chunk_pdf.add_page(page)
 
+        os.makedirs(chunks_folder, exist_ok=True)
         chunk_file_path = os.path.join(
             chunks_folder,
             f"{file_object.name}.chunk{i+1}.{file_object.type}"
