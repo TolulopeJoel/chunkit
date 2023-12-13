@@ -1,12 +1,16 @@
-from rest_framework_simplejwt.serializers import TokenObtainPairSerializer
 from django.contrib.auth import get_user_model
 from rest_framework import serializers
+from rest_framework_simplejwt.serializers import TokenObtainPairSerializer
+
+from .validators import UserValidator
 
 
-class UserSerializer(serializers.ModelSerializer):
+class UserSerializer(UserValidator, serializers.ModelSerializer):
     """
     Serializer for the user model.
     """
+    email = serializers.CharField(required=True)
+    first_name = serializers.CharField(write_only=True)
     password = serializers.CharField(min_length=8, write_only=True)
     password2 = serializers.CharField(write_only=True)
 
@@ -25,18 +29,8 @@ class UserSerializer(serializers.ModelSerializer):
         Create a new user using the validated data.
         """
         validated_data.pop('password2')
+        validated_data['username'] = validated_data['email']
         return get_user_model().objects.create_user(**validated_data)
-
-    def validate(self, attrs):
-        """
-        Validate the password and password2 fields to ensure they match.
-        """
-        password = attrs.get('password')
-        password2 = attrs.get('password2')
-
-        if password != password2:
-            raise serializers.ValidationError('Passwords must match')
-        return attrs
 
 
 class CustomTokenObtainPairSerializer(TokenObtainPairSerializer):
