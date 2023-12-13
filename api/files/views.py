@@ -110,7 +110,7 @@ class ChunkListView(ListAPIView):
         uploaded_file = UploadedFile.objects.filter(
             id=file_id, user=self.request.user).first()
 
-        if uploaded_file is not None:
+        if uploaded_file:
             chunks = uploaded_file.file_chunks.all()
 
             data = {
