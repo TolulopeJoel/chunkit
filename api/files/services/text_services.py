@@ -25,6 +25,9 @@ def split_text(file_object, num_chunks=2):
     lines_per_chunk = num_file_lines // num_chunks
     remaining_lines = num_file_lines % num_chunks
 
+    if lines_per_chunk <= 0:
+        return f"Can't split {num_file_lines} into {num_chunks} chunks"
+
     start_line = 0
     end_line = lines_per_chunk
     chunk_files = []

@@ -41,12 +41,15 @@ def split_and_save_pdf(file_object, num_chunks, chunks_folder):
     pages_per_chunk = total_pages // num_chunks
     remaining_pages = total_pages % num_chunks
 
+    if pages_per_chunk <= 0:
+        return f"Can't split {total_pages} into {num_chunks} chunks"
+
     chunk_files = []
     start, end = 0, pages_per_chunk
 
     for i in range(num_chunks):
         chunk_pdf = PdfWriter()
-        end = min(end, total_pages) # Adjust 'end' if it exceeds total pages
+        end = min(end, total_pages)  # Adjust 'end' if it exceeds total pages
 
         for page_num in range(start, end):
             page = pdf.pages[page_num]

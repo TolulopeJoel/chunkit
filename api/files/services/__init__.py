@@ -77,6 +77,15 @@ def split_uploaded_file(
     validated_data["uploaded_file"] = uploaded_file
     splitter = get_file_splitter(uploaded_file)
     chunked_files = splitter(uploaded_file, num_chunks)
+    
+    if type(chunked_files) == str:
+        return Response(
+            {
+                "status": "error",
+                "message": f"Can't create chunk. {chunked_files}.",
+            },
+            status=status.HTTP_400_BAD_REQUEST
+        )
 
     with concurrent.futures.ThreadPoolExecutor() as executor:
         futures = [
