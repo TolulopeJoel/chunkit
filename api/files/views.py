@@ -114,8 +114,11 @@ class ChunkListView(ListAPIView):
             chunks = uploaded_file.file_chunks.all()
 
             data = {
-                "uploaded_file": UploadedFileSerializer(uploaded_file).data,
-                "chunks": ChunkSerializer(chunks, many=True).data
+                "status": "success",
+                "data": {
+                    "uploaded_file": UploadedFileSerializer(uploaded_file).data,
+                    "chunks": ChunkSerializer(chunks, many=True).data
+                }
             }
 
             return Response(data, status=status.HTTP_200_OK)

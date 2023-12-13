@@ -14,7 +14,15 @@ class UploadedFileSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = UploadedFile
-        fields = '__all__'
+        fields = [
+            "id",
+            "name",
+            "type",
+            "size",
+            "uploaded_at",
+            "file",
+            "user"
+        ]
 
     def get_file(self, object):
         request = self.context.get('request')
@@ -26,13 +34,14 @@ class ChunkSerializer(serializers.ModelSerializer):
     """
     Serializer for the Chunk model.
     """
+    chunk_id = serializers.IntegerField(source="id", read_only=True)
     chunk_file = serializers.URLField(read_only=True)
     position = serializers.IntegerField(read_only=True)
 
     class Meta:
         model = Chunk
         fields = [
-            "id",
-            "chunk_file",
+            "chunk_id",
             "position",
+            "chunk_file",
         ]

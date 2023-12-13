@@ -90,8 +90,12 @@ def split_uploaded_file(
     shutil.rmtree(f"{uploaded_file.name}_chunks")
 
     data = {
-        "uploaded_file": UploadedFileSerializer(uploaded_file).data,
-        "chunk_files": ChunkSerializer(created_chunks, many=True).data
+        "status": "success",
+        "message": "File successfully split into chunks.",
+        "data": {
+            "uploaded_file": UploadedFileSerializer(uploaded_file).data,
+            "chunks": ChunkSerializer(created_chunks, many=True).data
+        }
     }
 
     return Response(data, status=status.HTTP_201_CREATED)
