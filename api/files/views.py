@@ -102,7 +102,6 @@ class ChunkListView(ListAPIView):
 
         Returns:
         - A response with the serialized data of the uploaded file and its associated chunks if file is found.
-        - A response with a 404 error and a message indicating that the uploaded file was not found if file is notfound.
         """
         file_id = kwargs['file_id']
         uploaded_file = UploadedFile.objects.filter(
