@@ -3,7 +3,7 @@ from rest_framework import generics, permissions
 from rest_framework_simplejwt.views import TokenObtainPairView
 
 from .serializers import CustomTokenObtainPairSerializer, UserSerializer
-
+from .permissions import IsSuperUser
 
 class CustomTokenObtainPairView(TokenObtainPairView):
     """
@@ -15,7 +15,7 @@ class CustomTokenObtainPairView(TokenObtainPairView):
 class UserListView(generics.ListAPIView):
     queryset = get_user_model().objects.all()
     serializer_class = UserSerializer
-    permission_classes = [permissions.IsAdminUser]
+    permission_classes = [IsSuperUser, permissions.IsAdminUser]
 
 
 class SignUpView(generics.CreateAPIView):
