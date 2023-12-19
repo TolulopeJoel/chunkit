@@ -69,18 +69,27 @@ class ChunkCreateView(CreateAPIView):
 
             except UploadedFile.DoesNotExist:
                 return Response(
-                    {"detail": "The provided uploaded file could not be found."},
+                    {
+                        "status": "error",
+                        "messsage": "The provided uploaded file could not be found.",
+                    },
                     status=status.HTTP_400_BAD_REQUEST
                 )
 
             except (ValueError, SystemError):
                 return Response(
-                    {"detail": "Invalid data provided."},
+                    {
+                        "status": "error",
+                        "messsage": "Invalid data provided.",
+                    },
                     status=status.HTTP_400_BAD_REQUEST
                 )
 
         return Response(
-            {"detail": "Failed to create a chunk. Upload a file."},
+            {
+                "status": "error",
+                "messsage": "Failed to create a chunk. Upload a valid file.",
+            },
             status=status.HTTP_400_BAD_REQUEST
         )
 
