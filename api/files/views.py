@@ -71,16 +71,16 @@ class ChunkCreateView(CreateAPIView):
                 return Response(
                     {
                         "status": "error",
-                        "messsage": "The provided uploaded file could not be found.",
+                        "message": "The provided uploaded file could not be found.",
                     },
-                    status=status.HTTP_400_BAD_REQUEST
+                    status=status.HTTP_404_NOT_FOUND
                 )
 
             except (ValueError, SystemError):
                 return Response(
                     {
                         "status": "error",
-                        "messsage": "Invalid data provided.",
+                        "message": "Invalid data provided.",
                     },
                     status=status.HTTP_400_BAD_REQUEST
                 )
@@ -88,7 +88,7 @@ class ChunkCreateView(CreateAPIView):
         return Response(
             {
                 "status": "error",
-                "messsage": "Failed to create a chunk. Upload a valid file.",
+                "message": "Failed to create a chunk. Upload a valid file.",
             },
             status=status.HTTP_400_BAD_REQUEST
         )
