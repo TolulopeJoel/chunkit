@@ -4,6 +4,7 @@ from django.contrib.auth.models import AbstractUser
 import uuid
 
 class CustomUser(AbstractUser):
+    email = models.EmailField(unique=True, )
     id = models.UUIDField(
         primary_key=True,
         default=uuid.uuid4,

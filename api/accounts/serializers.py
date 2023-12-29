@@ -9,7 +9,6 @@ class UserSerializer(UserValidator, serializers.ModelSerializer):
     """
     Serializer for the user model.
     """
-    email = serializers.EmailField(required=True)
     first_name = serializers.CharField(write_only=True)
     password = serializers.CharField(min_length=8, write_only=True)
     password2 = serializers.CharField(write_only=True)

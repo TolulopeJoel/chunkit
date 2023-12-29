@@ -10,6 +10,7 @@ For the full list of settings and their values, see
 https://docs.djangoproject.com/en/4.2/ref/settings/
 """
 
+
 from datetime import timedelta
 from pathlib import Path
 
@@ -46,11 +47,11 @@ INSTALLED_APPS = [
     'django.contrib.sessions',
     'django.contrib.messages',
     'django.contrib.staticfiles',
-    
+
     #local apps
     'files.apps.FilesConfig',
     'accounts.apps.AccountsConfig',
-    
+
     # 3rd party libraries
     'cloudinary',
     'rest_framework',
@@ -170,7 +171,7 @@ REST_FRAMEWORK = {
 # Simple JWT settings
 
 SIMPLE_JWT = {
-    'ACCESS_TOKEN_LIFETIME': timedelta(minutes=30),
+    'ACCESS_TOKEN_LIFETIME': timedelta(minutes=99999999),
     'REFRESH_TOKEN_LIFETIME': timedelta(days=1),
 }
 
@@ -178,5 +179,5 @@ SPECTACULAR_SETTINGS = {
     'TITLE': 'Chunkit',
     'DESCRIPTION': '',
     'VERSION': '1.0',
-    'SWAGGER_UI_FAVICON_HREF': STATIC_URL + "chunkit_favicon.png",
+    'SWAGGER_UI_FAVICON_HREF': f"{STATIC_URL}chunkit_favicon.png",
 }
