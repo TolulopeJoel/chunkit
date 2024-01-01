@@ -1,4 +1,6 @@
 from django.contrib.auth import get_user_model
+from django.urls import reverse
+from rest_framework import status
 from rest_framework.test import APIClient, APITestCase
 
 from .models import UploadedFile
@@ -18,7 +20,7 @@ class GeneralTestCase(APITestCase):
 
         self.valid_uploaded_file = UploadedFile.objects.create(
             user=self.testuser,
-            file='https://example.com/file.txt',
+            file='https://res.cloudinary/file.txt',
             name='Test File',
             type='txt',
             size='1024',
@@ -28,7 +30,7 @@ class GeneralTestCase(APITestCase):
         self.invalid_uploaded_file = UploadedFile.objects.create(
             user=self.testuser,
             file='https://example.com/file.txt',
-            name='Test File',
+            name='Invalid File',
             type='txt',
             size='1024',
             uploaded_at='2023-04-27 08:00:00',
@@ -57,3 +59,36 @@ class UploadedFileModelTest(GeneralTestCase):
 
         self.assertEqual(str(uploaded_file), 'Test File')
         self.assertEqual(uploaded_file.type, 'txt')
+
+
+class TestChunkCreateView(GeneralTestCase):
+    def test_valid_file_upload(self):
+        endpoint = reverse('chunks-create')
+        data = {
+            "uploaded_file_id": self.valid_uploaded_file.id,
+            "num_chunks": 3,
+        }
+        response = self.client.post(endpoint, data=data)
+
+        self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST)
+
+    def test_invalid_file_upload(self):
+        endpoint = reverse('chunks-create')
+        data = {
+            "uploaded_file_id": self.invalid_uploaded_file.id,
+            "num_chunks": 3,
+        }
+        response = self.client.post(endpoint, data=data)
+
+        self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST)
+
+
+class TestChunkListView(GeneralTestCase):
+    def test_chunk_list_view(self):
+        self.client.force_authenticate(user=self.testuser)
+
+        endpoint = reverse('chunks-list', kwargs={"file_id": 1})
+        response = self.client.get(endpoint)
+
+        self.assertEqual(response.status_code, status.HTTP_200_OK)
+        self.assertEqual(len(response.data), get_user_model().objects.count())
