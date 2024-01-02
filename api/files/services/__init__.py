@@ -90,9 +90,7 @@ def split_uploaded_file(
         )
 
     # delete existing chunks and create new ones
-    no_old_chunks = delete_chunks(uploaded_file)
-
-    if no_old_chunks:
+    if no_old_chunks := delete_chunks(uploaded_file):
         with concurrent.futures.ThreadPoolExecutor() as executor:
             futures = [
                 executor.submit(
@@ -146,5 +144,5 @@ def delete_chunks(uploaded_file):
         if chunks.exists():
             chunks.delete()
         return True
-    except:
+    except Exception:
         return False
