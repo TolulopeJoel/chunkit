@@ -114,10 +114,9 @@ class ChunkListView(ListAPIView):
         - A response with the serialized data of the uploaded file and its associated chunks if file is found.
         """
         file_id = kwargs['file_id']
-        uploaded_file = UploadedFile.objects.filter(
-            id=file_id, user=self.request.user).first()
-
-        if uploaded_file:
+        if uploaded_file := UploadedFile.objects.filter(
+            id=file_id, user=self.request.user
+        ).first():
             chunks = uploaded_file.file_chunks.all()
 
             data = {
