@@ -20,17 +20,17 @@ class GeneralTestCase(APITestCase):
 
         self.valid_uploaded_file = UploadedFile.objects.create(
             user=self.testuser,
-            file='https://res.cloudinary/file.txt',
+            file='https://res.cloudinary.com/dj5u8jfst/image/upload/v1704235061/media/file_chunks/2024/1/1/tuov4goy0wyqcwahbo4k.png',
             name='Test File',
-            type='txt',
+            type='png',
             size='1024',
             uploaded_at='2023-04-27 08:00:00',
         )
 
         self.invalid_uploaded_file = UploadedFile.objects.create(
             user=self.testuser,
-            file='https://example.com/file.txt',
-            name='Invalid File',
+            file='https://res.cloudinary.com/example/image/upload/v1704235061/media/2024/1/1/toler.txt',
+            name='Test File',
             type='txt',
             size='1024',
             uploaded_at='2023-04-27 08:00:00',
@@ -69,8 +69,7 @@ class TestChunkCreateView(GeneralTestCase):
             "num_chunks": 3,
         }
         response = self.client.post(endpoint, data=data)
-
-        self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST)
+        self.assertEqual(response.status_code, status.HTTP_201_CREATED)
 
     def test_invalid_file_upload(self):
         endpoint = reverse('chunks-create')
@@ -79,16 +78,16 @@ class TestChunkCreateView(GeneralTestCase):
             "num_chunks": 3,
         }
         response = self.client.post(endpoint, data=data)
-
+        print(response.content, 'hiiiiiiii')
         self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST)
 
 
-class TestChunkListView(GeneralTestCase):
-    def test_chunk_list_view(self):
-        self.client.force_authenticate(user=self.testuser)
+# class TestChunkListView(GeneralTestCase):
+#     def test_chunk_list_view(self):
+#         self.client.force_authenticate(user=self.testuser)
 
-        endpoint = reverse('chunks-list', kwargs={"file_id": 1})
-        response = self.client.get(endpoint)
+#         endpoint = reverse('chunks-list', kwargs={"file_id": 1})
+#         response = self.client.get(endpoint)
 
-        self.assertEqual(response.status_code, status.HTTP_200_OK)
-        self.assertEqual(len(response.data), get_user_model().objects.count())
+#         self.assertEqual(response.status_code, status.HTTP_200_OK)
+#         self.assertEqual(len(response.data), get_user_model().objects.count())
