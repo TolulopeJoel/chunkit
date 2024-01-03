@@ -3,7 +3,7 @@ from django.urls import reverse
 from rest_framework import status
 from rest_framework.test import APIClient, APITestCase
 
-from .models import UploadedFile
+from .models import Chunk, UploadedFile
 
 
 class GeneralTestCase(APITestCase):
@@ -78,16 +78,15 @@ class TestChunkCreateView(GeneralTestCase):
             "num_chunks": 3,
         }
         response = self.client.post(endpoint, data=data)
-        print(response.content, 'hiiiiiiii')
+
         self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST)
 
 
-# class TestChunkListView(GeneralTestCase):
-#     def test_chunk_list_view(self):
-#         self.client.force_authenticate(user=self.testuser)
+class TestChunkListView(GeneralTestCase):
+    def test_chunk_list_view(self):
+        self.client.force_authenticate(user=self.testuser)
 
-#         endpoint = reverse('chunks-list', kwargs={"file_id": 1})
-#         response = self.client.get(endpoint)
+        endpoint = reverse('chunks-list', kwargs={"file_id": 1})
+        response = self.client.get(endpoint)
 
-#         self.assertEqual(response.status_code, status.HTTP_200_OK)
-#         self.assertEqual(len(response.data), get_user_model().objects.count())
+        self.assertEqual(response.status_code, status.HTTP_200_OK)
