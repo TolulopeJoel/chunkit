@@ -64,7 +64,7 @@ class ChunkCreateView(CreateAPIView):
         if uploaded_file_id:
             try:
                 return split_uploaded_file(
-                    uploaded_file_id, validated_data, num_chunks
+                    uploaded_file_id, validated_data, int(num_chunks)
                 )
 
             except UploadedFile.DoesNotExist:
@@ -76,7 +76,8 @@ class ChunkCreateView(CreateAPIView):
                     status=status.HTTP_404_NOT_FOUND
                 )
 
-            except (ValueError, SystemError):
+            except (ValueError, SystemError) as e:
+                print(e, "damnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnn")
                 return Response(
                     {
                         "status": "error",

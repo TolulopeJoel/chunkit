@@ -1,5 +1,6 @@
 import concurrent.futures
 import shutil
+from django.http import StreamingHttpResponse
 
 import cloudinary
 from rest_framework.views import Response, status
@@ -128,6 +129,8 @@ def process_chunk(validated_data, index, file, created_chunks):
 
     chunk = Chunk(**validated_data)
     chunk.save()
+    
+    yield chuhk
     created_chunks.append(chunk)
 
 
