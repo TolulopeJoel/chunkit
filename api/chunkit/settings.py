@@ -37,7 +37,7 @@ environ.Env.read_env(os.path.join(BASE_DIR, '.env'))
 SECRET_KEY = env("SECRET_KEY")
 
 # SECURITY WARNING: don't run with debug turned on in production!
-DEBUG = env.bool("DEBUG", default=False)
+DEBUG = env("DEBUG")
 
 ALLOWED_HOSTS = env.list("ALLOWED_HOSTS")
 
@@ -194,3 +194,17 @@ SPECTACULAR_SETTINGS = {
 # CORS settings
 
 CORS_ORIGIN_WHITELIST = env.list('CORS_ORIGIN_WHITELIST')
+
+# Security Settings
+
+SESSION_COOKIE_HTTPONLY = True
+
+SESSION_COOKIE_SECURE = not DEBUG
+
+CSRF_COOKIE_HTTPONLY = True
+
+CSRF_COOKIE_SECURE = not DEBUG
+
+SECURE_BROWSER_XSS_FILTER = True
+
+X_FRAME_OPTIONS = 'DENY'
