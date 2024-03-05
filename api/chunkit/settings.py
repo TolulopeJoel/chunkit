@@ -11,31 +11,35 @@ https://docs.djangoproject.com/en/4.2/ref/settings/
 """
 
 
+import os
 from datetime import timedelta
 from pathlib import Path
 
 import cloudinary
 import cloudinary.api
 import cloudinary.uploader
-from environs import Env
+import environ
 
-env = Env()
-env.read_env()
+# Initialise environment variables
+env = environ.Env()
+environ.Env.read_env()
 
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
 BASE_DIR = Path(__file__).resolve().parent.parent
 
+# Take environment variables from .env file
+environ.Env.read_env(os.path.join(BASE_DIR, '.env'))
 
 # Quick-start development settings - unsuitable for production
 # See https://docs.djangoproject.com/en/4.2/howto/deployment/checklist/
 
 # SECURITY WARNING: keep the secret key used in production secret!
-SECRET_KEY = 'django-insecure-7_e$n*_m#rsc41qc=$ls5mwd(t7l+g=@galte452+1ua7a%p8f'
+SECRET_KEY = env("SECRET_KEY")
 
 # SECURITY WARNING: don't run with debug turned on in production!
-DEBUG = True
+DEBUG = env.bool("DEBUG", default=False)
 
-ALLOWED_HOSTS = []
+ALLOWED_HOSTS = env.list("ALLOWED_HOSTS")
 
 
 # Application definition
@@ -95,12 +99,7 @@ WSGI_APPLICATION = 'chunkit.wsgi.application'
 # Database
 # https://docs.djangoproject.com/en/4.2/ref/settings/#databases
 
-DATABASES = {
-    'default': {
-        'ENGINE': 'django.db.backends.sqlite3',
-        'NAME': BASE_DIR / 'db.sqlite3',
-    }
-}
+DATABASES = {'default': {env.db('DATABASE_URL')}}
 
 
 # Password validation
@@ -150,9 +149,9 @@ DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
 # cloudinary settings
 
 cloudinary.config(
-    cloud_name=env.str('CLOUD_NAME'),
-    api_key=env.str('CLOUDINARY_API_KEY'),
-    api_secret=env.str('CLOUDINARY_API_SECRET')
+    cloud_name=env('CLOUD_NAME'),
+    api_key=env('CLOUDINARY_API_KEY'),
+    api_secret=env('CLOUDINARY_API_SECRET')
 )
 
 # REST framework settings
