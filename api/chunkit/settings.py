@@ -58,6 +58,7 @@ INSTALLED_APPS = [
 
     # 3rd party libraries
     'cloudinary',
+    'corsheaders',
     'rest_framework',
     'drf_spectacular',
     'rest_framework_simplejwt',
@@ -67,6 +68,7 @@ AUTH_USER_MODEL = 'accounts.CustomUser'
 
 MIDDLEWARE = [
     'django.middleware.security.SecurityMiddleware',
+    'corsheaders.middleware.CorsMiddleware',
     'django.contrib.sessions.middleware.SessionMiddleware',
     'django.middleware.common.CommonMiddleware',
     'django.middleware.csrf.CsrfViewMiddleware',
@@ -180,3 +182,7 @@ SPECTACULAR_SETTINGS = {
     'VERSION': '1.0',
     'SWAGGER_UI_FAVICON_HREF': f"{STATIC_URL}chunkit_favicon.png",
 }
+
+# CORS settings
+
+CORS_ORIGIN_WHITELIST = env.list('CORS_ORIGIN_WHITELIST')
