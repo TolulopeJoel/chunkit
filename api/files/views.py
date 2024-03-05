@@ -77,7 +77,6 @@ class ChunkCreateView(CreateAPIView):
                 )
 
             except (ValueError, SystemError) as e:
-                print(e, "damnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnn")
                 return Response(
                     {
                         "status": "error",

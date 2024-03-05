@@ -130,7 +130,6 @@ def delete_chunks_folders():
         if directory.endswith("_chunks") and os.path.isdir(directory):
             # Delete the directory and its contents
             shutil.rmtree(directory)
-            print(f"Deleted folder: {directory}")
 
 
 def send_chunks(update, context, chunk_files):
