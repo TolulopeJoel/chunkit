@@ -8,6 +8,7 @@ from .utils import get_folder_path
 class UploadedFile(models.Model):
     user = models.ForeignKey(
         get_user_model(),
+        null=True,
         on_delete=models.CASCADE,
         related_name='uploaded_files'
     )

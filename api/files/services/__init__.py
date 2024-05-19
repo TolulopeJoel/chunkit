@@ -1,5 +1,6 @@
 import concurrent.futures
 import shutil
+from typing import Callable
 
 import cloudinary
 from rest_framework.views import Response, status
@@ -30,7 +31,7 @@ FILE_HANDLERS = {
 }
 
 
-def get_file_splitter(file_object: UploadedFile) -> function | None:
+def get_file_splitter(file_object: UploadedFile) -> Callable | None:
     """
     Returns the appropriate file splitting function based uploaded file type
     """
@@ -96,7 +97,7 @@ def process_chunk(validated_data: dict, index: int, file: __file__, created_chun
     created_chunks.add(chunk)
 
     # remove chunk files from local filesystem
-    shutil.rmtree(f"{validated_data["uploaded_file"].name}_chunks")
+    shutil.rmtree(f"{validated_data['uploaded_file'].name}_chunks")
 
 
 def has_old_chunks(uploaded_file: UploadedFile) -> bool:
