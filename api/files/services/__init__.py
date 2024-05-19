@@ -1,13 +1,12 @@
 import concurrent.futures
 import shutil
-from django.http import StreamingHttpResponse
 
 import cloudinary
 from rest_framework.views import Response, status
 
 from ..models import Chunk, UploadedFile
 from ..serializers import ChunkSerializer, UploadedFileSerializer
-from ..utils import get_folder_path
+from ..utils import error_response, get_folder_path, success_response
 from .archive_services import split_archive
 from .image_services import split_image
 from .pdf_services import split_pdf
@@ -70,27 +69,17 @@ def split_uploaded_file(
         DoesNotExist: If the uploaded file with the given ID does not exist.
     """
     created_chunks = []  # List to store created chunks
-
-    uploaded_file = (
-        UploadedFile.objects
-        .filter(id=uploaded_file_id).first()
-    )
+    uploaded_file = UploadedFile.objects.filter(id=uploaded_file_id).first()
 
     validated_data["uploaded_file"] = uploaded_file
     splitter = get_file_splitter(uploaded_file)
     chunked_files = splitter(uploaded_file, num_chunks)
 
     if isinstance(chunked_files, str):
-        return Response(
-            {
-                "status": "error",
-                "message": f"Can't create chunk. {chunked_files}.",
-            },
-            status=status.HTTP_400_BAD_REQUEST
-        )
+        return error_response(f"Can't create chunk. {chunked_files}.")
 
     # delete existing chunks and create new ones
-    if no_old_chunks := delete_chunks(uploaded_file):
+    if delete_chunks(uploaded_file):
         with concurrent.futures.ThreadPoolExecutor() as executor:
             futures = [
                 executor.submit(
@@ -103,15 +92,10 @@ def split_uploaded_file(
         shutil.rmtree(f"{uploaded_file.name}_chunks")
 
     data = {
-        "status": "success",
-        "message": "File successfully split into chunks.",
-        "data": {
-            "uploaded_file": UploadedFileSerializer(uploaded_file).data,
-            "chunks": ChunkSerializer(created_chunks, many=True).data
-        }
+        "uploaded_file": UploadedFileSerializer(uploaded_file).data,
+        "chunks": ChunkSerializer(created_chunks, many=True).data
     }
-
-    return Response(data, status=status.HTTP_201_CREATED)
+    return success_response(data, status=status.HTTP_201_CREATED)
 
 
 def process_chunk(validated_data, index, file, created_chunks):
@@ -129,8 +113,8 @@ def process_chunk(validated_data, index, file, created_chunks):
 
     chunk = Chunk(**validated_data)
     chunk.save()
-    
-    yield chuhk
+
+    yield chunk
     created_chunks.append(chunk)
 
 

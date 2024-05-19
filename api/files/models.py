@@ -1,5 +1,3 @@
-import uuid
-
 from cloudinary.models import CloudinaryField
 from django.contrib.auth import get_user_model
 from django.db import models
@@ -8,10 +6,6 @@ from .utils import get_folder_path
 
 
 class UploadedFile(models.Model):
-    """
-    Model representing an uploaded file.
-    """
-
     user = models.ForeignKey(
         get_user_model(),
         on_delete=models.CASCADE,
@@ -32,11 +26,6 @@ class UploadedFile(models.Model):
 
 
 class Chunk(models.Model):
-    """
-    Model representing a chunk of an uploaded file.
-    """
-
-    position = models.PositiveIntegerField()
     uploaded_file = models.ForeignKey(
         UploadedFile,
         on_delete=models.CASCADE,
@@ -46,6 +35,9 @@ class Chunk(models.Model):
         folder=get_folder_path("file_chunks"),
         resource_type='auto'
     )
+    # The position of the chunk file when splitted
+    # e.g chunk (1), chunk (2), chunk (3), ...
+    position = models.PositiveIntegerField()
 
     def __str__(self):
         return f"{self.uploaded_file} chunk"
