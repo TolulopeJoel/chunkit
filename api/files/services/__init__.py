@@ -30,15 +30,9 @@ FILE_HANDLERS = {
 }
 
 
-def get_file_splitter(file_object):
-    """Determine and return the appropriate file splitting function based
-    uploaded file type
-
-    Args:
-        file_object: An instance of UploadedFile representing the uploaded file
-
-    Returns:
-        callable or None: The file splitting function corresponding to the file type, or None if not found.
+def get_file_splitter(file_object: UploadedFile) -> function | None:
+    """
+    Returns the appropriate file splitting function based uploaded file type
     """
     return next(
         (
@@ -50,25 +44,10 @@ def get_file_splitter(file_object):
     )
 
 
-def split_uploaded_file(
-    uploaded_file_id, validated_data, num_chunks
-):
+def split_uploaded_file(uploaded_file_id: int, validated_data: dict, num_chunks: int) -> Response:
     """
-    Splits uploaded file into chunks and upload them to cloudinary
-
-    Args:
-        uploaded_file_id (int): The ID of the uploaded file.
-        validated_data (dict): The validated data for creating the chunks.
-        num_chunks (int): The number of chunks to split the file into.
-
-    Returns:
-        Response: A response object containing the serialized data
-        of the created chunk objects.
-
-    Raises:
-        DoesNotExist: If the uploaded file with the given ID does not exist.
+    Splits uploaded file into chunks and upload them to cloudinary.
     """
-    created_chunks = []  # List to store created chunks
     uploaded_file = UploadedFile.objects.filter(id=uploaded_file_id).first()
 
     validated_data["uploaded_file"] = uploaded_file
@@ -78,8 +57,9 @@ def split_uploaded_file(
     if isinstance(chunked_files, str):
         return error_response(f"Can't create chunk. {chunked_files}.")
 
-    # delete existing chunks and create new ones
-    if delete_chunks(uploaded_file):
+    created_chunks = set()
+    if has_old_chunks(uploaded_file):
+        # logic to create muliple chunks at once
         with concurrent.futures.ThreadPoolExecutor() as executor:
             futures = [
                 executor.submit(
@@ -89,8 +69,6 @@ def split_uploaded_file(
             ]
             concurrent.futures.wait(futures)
 
-        shutil.rmtree(f"{uploaded_file.name}_chunks")
-
     data = {
         "uploaded_file": UploadedFileSerializer(uploaded_file).data,
         "chunks": ChunkSerializer(created_chunks, many=True).data
@@ -98,7 +76,7 @@ def split_uploaded_file(
     return success_response(data, status=status.HTTP_201_CREATED)
 
 
-def process_chunk(validated_data, index, file, created_chunks):
+def process_chunk(validated_data: dict, index: int, file: __file__, created_chunks: set):
     """
     This function handles each chunk processing
     """
@@ -115,12 +93,15 @@ def process_chunk(validated_data, index, file, created_chunks):
     chunk.save()
 
     yield chunk
-    created_chunks.append(chunk)
+    created_chunks.add(chunk)
+
+    # remove chunk files from local filesystem
+    shutil.rmtree(f"{validated_data["uploaded_file"].name}_chunks")
 
 
-def delete_chunks(uploaded_file):
+def has_old_chunks(uploaded_file: UploadedFile) -> bool:
     """
-    This function deletes chunks of an uploaded file.
+    This function checks if an UploadedFile has chunks, then deletes them.
     """
     try:
         chunks = uploaded_file.file_chunks.all()
