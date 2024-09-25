@@ -1,11 +1,10 @@
-
 from environs import Env
 from telegram import Update
 from telegram.ext import Application, CommandHandler, ConversationHandler, MessageHandler, filters
 
+from config import CONFIRM_CHUNKS, GET_NUM_CHUNKS
 from commands import cancel_command, help_command, set_commands, start_command
 from handlers import confirm_chunks, get_num_chunks, handle_file
-from utils import CONFIRM_CHUNKS, GET_NUM_CHUNKS
 
 env = Env()
 env.read_env()
