@@ -1,4 +1,5 @@
 import os
+from pathlib import Path
 
 from telegram import ReplyKeyboardMarkup, ReplyKeyboardRemove, Update
 from telegram.ext import ContextTypes, ConversationHandler
@@ -10,25 +11,48 @@ from utils import delete_chunks_folders, get_split_function, interpret_response
 
 async def handle_file(update: Update, context: ContextTypes.DEFAULT_TYPE) -> int:
     """Handle the uploaded file and ask for the number of chunks."""
-    file = await update.message.document.get_file()
-    file_name = update.message.document.file_name
-    await file.download_to_drive(file_name)
+    message = update.message
+    file, file_name = None, None
 
-    # Check if file type is supported
-    if not get_split_function(file_name):
-        await update.message.reply_text(
-            "Sorry, this file type is not supported. Please try a different file."
+    # Create a folder for storing downloaded files
+    downloads_folder = Path("downloads")
+    downloads_folder.mkdir(exist_ok=True)
+
+    if message.document:
+        file = await message.document.get_file()
+        file_name = message.document.file_name
+    elif message.photo:
+        file = await message.photo[-1].get_file()
+        file_name = f"photo_{message.photo[-1].file_id}.jpg"
+    elif message.video:
+        file = await message.video.get_file()
+        file_name = f"video_{message.video.file_id}.mp4"
+    else:
+        await message.reply_text(
+            "Sorry, this file type is not supported. Please try uploading a document, photo, or video file."
         )
-        os.remove(file_name)
         return ConversationHandler.END
 
-    context.user_data["file_path"] = file_name
+    # Download the file to the downloads_folder
+    file_path = downloads_folder / file_name
+    await file.download_to_drive(file_path)
 
-    reply_keyboard = [['2', '3', '4', '5']]
-    await update.message.reply_text(
+    # Check if file type is supported
+    if not get_split_function(file_path):
+        await message.reply_text(
+            "Sorry, this file type is not supported for splitting. Please try a different file.\nSend message to dotolulope2@gmail.com if it is life threatening."
+        )
+        os.remove(file_path)
+        return ConversationHandler.END
+
+    context.user_data["file_path"] = file_path
+
+    await message.reply_text(
         "How many chunks do you want? Please enter a number or choose from the options below.",
         reply_markup=ReplyKeyboardMarkup(
-            reply_keyboard, one_time_keyboard=True)
+            [['2', '3', '4', '5']],
+            one_time_keyboard=True
+        )
     )
 
     return GET_NUM_CHUNKS
@@ -41,11 +65,10 @@ async def get_num_chunks(update: Update, context: ContextTypes.DEFAULT_TYPE) -> 
         if num_chunks <= 0:
             raise ValueError("Number of chunks must be greater than 0")
         if num_chunks == 1:
-            reply_keyboard = [['Yes', 'No']]
             await update.message.reply_text(
                 "Splitting file into a single chunk might return the file with lower size but same quality. Do you want that?",
                 reply_markup=ReplyKeyboardMarkup(
-                    reply_keyboard, one_time_keyboard=True
+                    [['Yes', 'No']], one_time_keyboard=True
                 ),
             )
             context.user_data["num_chunks"] = num_chunks
@@ -57,11 +80,11 @@ async def get_num_chunks(update: Update, context: ContextTypes.DEFAULT_TYPE) -> 
 
     context.user_data["num_chunks"] = num_chunks
 
-    reply_keyboard = [['Yes', 'No']]
     await update.message.reply_text(
         f"You want to split the file into {num_chunks} chunks. Is that correct?",
         reply_markup=ReplyKeyboardMarkup(
-            reply_keyboard, one_time_keyboard=True)
+            [['Yes', 'No']], one_time_keyboard=True
+        )
     )
 
     return CONFIRM_CHUNKS
@@ -106,6 +129,8 @@ async def confirm_chunks(update: Update, context: ContextTypes.DEFAULT_TYPE) -> 
     except Exception as e:
         logger.error(f"Error processing file: {e}")
         await update.message.reply_text(f"An error occurred while processing your file: {str(e)}")
+    finally:
+        os.remove(file_path)
 
     return ConversationHandler.END
 
