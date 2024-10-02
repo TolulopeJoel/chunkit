@@ -6,6 +6,7 @@ from chunkers.video_chunker import split_video
 
 # Conversation states
 GET_FILE, GET_NUM_CHUNKS, CONFIRM_CHUNKS = range(3)
+DEBUG = False
 
 file_extensions = {
     "image": (".jpg", ".jpeg", ".png", ".webp", ".svg", ".gif", ".bmp", ".ico", ".tiff"),

@@ -1,8 +1,15 @@
 from environs import Env
-from telegram.ext import Application, CommandHandler, ConversationHandler, MessageHandler, filters
+from telegram import Update
+from telegram.ext import (
+    Application,
+    CommandHandler,
+    ConversationHandler,
+    MessageHandler,
+    filters
+)
 
 from commands import cancel_command, help_command, set_commands, start_command
-from config import CONFIRM_CHUNKS, GET_NUM_CHUNKS
+from config import CONFIRM_CHUNKS, DEBUG, GET_NUM_CHUNKS
 from handlers import confirm_chunks, get_num_chunks, handle_file
 
 env = Env()
@@ -32,11 +39,14 @@ def main() -> None:
     application.add_handler(CommandHandler("help", help_command))
     application.add_handler(conv_handler)
 
-    application.run_webhook(
-        listen="0.0.0.0",
-        url_path=env.str("BOT_TOKEN"),
-        webhook_url=env.str('WEBHOOK_URL')
-    )
+    if DEBUG:
+        application.run_polling(allowed_updates=Update.ALL_TYPES)
+    else:
+        application.run_webhook(
+            listen="0.0.0.0",
+            url_path=env.str("BOT_TOKEN"),
+            webhook_url=env.str('WEBHOOK_URL')
+        )
 
 
 if __name__ == "__main__":
