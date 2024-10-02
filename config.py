@@ -1,8 +1,8 @@
-from archive_chunker import split_archive
-from image_chunker import split_image
-from pdf_chunker import split_pdf
-from text_chunker import split_text
-from video_chunker import split_video
+from chunkers.archive_chunker import split_archive
+from chunkers.image_chunker import split_image
+from chunkers.pdf_chunker import split_pdf
+from chunkers.text_chunker import split_text
+from chunkers.video_chunker import split_video
 
 # Conversation states
 GET_FILE, GET_NUM_CHUNKS, CONFIRM_CHUNKS = range(3)
