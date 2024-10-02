@@ -17,7 +17,10 @@ def main() -> None:
     application.job_queue.run_once(set_commands, when=1)
 
     conv_handler = ConversationHandler(
-        entry_points=[MessageHandler(filters.Document.ALL, handle_file)],
+        entry_points=[MessageHandler(
+            filters.Document.ALL | filters.PHOTO | filters.VIDEO,
+            handle_file
+        )],
         states={
             GET_NUM_CHUNKS: [MessageHandler(filters.TEXT & ~filters.COMMAND, get_num_chunks)],
             CONFIRM_CHUNKS: [MessageHandler(filters.TEXT & ~filters.COMMAND, confirm_chunks)],
@@ -34,6 +37,7 @@ def main() -> None:
         url_path=env.str("BOT_TOKEN"),
         webhook_url=env.str('WEBHOOK_URL')
     )
+
 
 if __name__ == "__main__":
     main()
