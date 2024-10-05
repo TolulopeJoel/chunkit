@@ -1,13 +1,34 @@
+from database import user_db
 from telegram import BotCommand, ReplyKeyboardRemove, Update
 from telegram.ext import Application, ContextTypes, ConversationHandler
 
 
 async def start_command(update: Update, context: ContextTypes.DEFAULT_TYPE) -> None:
     user = update.effective_user
-    await update.message.reply_html(
-        rf"Welcome to the File Chunker Bot, {user.mention_html()}! "
-        "Please send me a file to split into chunks."
-    )
+    user_id = user.id
+
+    existing_user = await user_db.get_user(user_id)
+    if existing_user:
+        await update.message.reply_html(
+            rf"Welcome back, {user.first_name}! "
+            "Ready to chunk some more files? Let's see those stats grow! 📈"
+        )
+    else:
+        await user_db.create_user({
+            "user_id": user_id,
+            "first_name": user.first_name,
+            "last_name": user.last_name,
+            "username": user.username,
+        })
+
+        await update.message.reply_html(
+            f"Hello {user.mention_html()}, it's a pleasure to have you here! 🎉\n\n"
+            "I'm prepared to assist you in splitting your files into well-organized chunks."
+            "Please feel free to send any file, and I will handle the rest. ✨\n\n"
+            "Tip: You can check your file processing statistics at any time by using /stats."
+        )
+
+
 
 
 async def help_command(update: Update, context: ContextTypes.DEFAULT_TYPE) -> None:
