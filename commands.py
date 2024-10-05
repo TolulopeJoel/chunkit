@@ -1,6 +1,8 @@
-from database import user_db
 from telegram import BotCommand, ReplyKeyboardRemove, Update
 from telegram.ext import Application, ContextTypes, ConversationHandler
+
+from database import user_db
+from utils import format_size
 
 
 async def start_command(update: Update, context: ContextTypes.DEFAULT_TYPE) -> None:
@@ -29,6 +31,55 @@ async def start_command(update: Update, context: ContextTypes.DEFAULT_TYPE) -> N
         )
 
 
+async def stats_command(update: Update, context: ContextTypes.DEFAULT_TYPE) -> None:
+    context.application.create_task
+    user_id = update.effective_user.id
+    user = await user_db.get_user(user_id)
+
+    if not user:
+        await update.message.reply_text(
+            "No stats available yet. Start uploading files!"
+        )
+        return
+
+    # Calculate stats
+    file_types = user.get("file_type_counts", {})
+    most_common_type = max(file_types.items(), key=lambda x: x[1])[
+        0] if file_types else "None"
+
+    stats_message = f"""
+🤖 Your ChunkIt Stats 📊
+
+🗓️ Chunking since: {user['created_at'].strftime('%B %d, %Y')}
+
+📈 PROCESSING METRICS:
+📁 Files processed: {user.get('files_uploaded', 0)}
+💾 Total data: {format_size(user.get('total_size', 0))}
+🏃‍♂️ Fastest process: {user.get('fastest_process_time', 0):.2f}s
+🐌 Slowest process: {user.get('slowest_process_time', 0):.2f}s
+
+
+📋 FILE VARIETY:
+🏆 Most used type: {most_common_type}
+📚 Unique types: {len(file_types)}
+🐘 Largest file: {format_size(user.get('largest_file_size', 0))}
+🐜 Smallest file: {format_size(user.get('smallest_file_size', float('inf')))}
+
+⏰ TIMING PATTERNS:
+📅 Current streak: {user.get('current_streak', 0)} days
+🔥 Longest streak: {user.get('longest_streak', 0)} days
+⏱️ Active hours: {len(user.get('activity_hours', []))} different hours
+    """
+
+# TODO:
+# user_rank, total_users = await user_db.get_user_rank(user_id)
+# ✅ Success rate: {(user.get('successful_processes', 0) / user.get('total_attempts', 1) * 100):.1f}%
+# 📈 WORLD RANK: #{user_rank} of {total_users} users
+
+    if achievements := user.get('achievements', []):
+        stats_message += "\n🏆 ACHIEVEMENTS:\n" + "\n".join(achievements)
+
+    await update.message.reply_text(stats_message)
 
 
 async def help_command(update: Update, context: ContextTypes.DEFAULT_TYPE) -> None:
@@ -40,9 +91,10 @@ async def help_command(update: Update, context: ContextTypes.DEFAULT_TYPE) -> No
         2. Specify the number of chunks
         3. Confirm your choice\n
         Commands:
-        /start - Start the bot
-        /help - Show this help message
-        /cancel - Cancel the current operation"""
+        🚀 /start - Start the bot
+        💡 /help - Show this help message
+        📊 /stats - Show the bot usage
+        🚫 /cancel - Cancel the current operation"""
     )
     await update.message.reply_text(help_text)
 
@@ -60,6 +112,7 @@ async def set_commands(application: Application) -> None:
     commands = [
         BotCommand("start", "Start the bot"),
         BotCommand("help", "Show help message"),
+        BotCommand("stats", "Show some interesting figures"),
         BotCommand("cancel", "Cancel the current operation"),
     ]
     await application.bot.set_my_commands(commands)

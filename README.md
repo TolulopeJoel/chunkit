@@ -28,6 +28,7 @@ The ChunkIt bot supports the following commands:
 
 - `/start`: Start the bot and get a welcome message.
 - `/help`: Display the help message with instructions on how to use the bot.
+- `/stats`: Display the statistics of usage.
 - `/cancel`: Cancel the current operation.
 
 ## Error Handling

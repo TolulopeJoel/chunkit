@@ -8,7 +8,7 @@ from telegram.ext import (
     filters
 )
 
-from commands import cancel_command, help_command, set_commands, start_command
+from commands import cancel_command, help_command, set_commands, start_command, stats_command
 from config import CONFIRM_CHUNKS, DEBUG, GET_NUM_CHUNKS
 from handlers import confirm_chunks, get_num_chunks, handle_file
 
@@ -37,6 +37,7 @@ def main() -> None:
 
     application.add_handler(CommandHandler("start", start_command))
     application.add_handler(CommandHandler("help", help_command))
+    application.add_handler(CommandHandler("stats", stats_command))
     application.add_handler(conv_handler)
 
     if DEBUG:
