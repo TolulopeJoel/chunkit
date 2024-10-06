@@ -2,6 +2,7 @@ import logging
 from datetime import datetime, timedelta, timezone
 from typing import Optional
 
+from environs import Env
 from motor.motor_asyncio import AsyncIOMotorClient, AsyncIOMotorCollection
 from pymongo import ASCENDING
 
@@ -49,7 +50,7 @@ class UserDatabase:
             "longest_streak": 0,
             "achievements": []
         }
-        user_data = {**default_data, **user_data}
+        user_data = default_data | user_data
         await self._safe_db_operation(
             self.collection.insert_one(user_data)
         )
@@ -160,7 +161,11 @@ class UserDatabase:
 
 
 # Initialize database
-MONGO_URI = "mongodb://localhost:27017"
+
+env = Env()
+env.read_env()
+
+MONGO_URI = env.str("MONGO_URI")
 
 client = AsyncIOMotorClient(MONGO_URI)
 database = client.get_database('chunkit')
