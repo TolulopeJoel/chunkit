@@ -1,5 +1,6 @@
 APScheduler==3.6.3
 environs==9.5.0
+motor
 moviepy==1.0.3
 Pillow==9.5.0
 PyPDF2==3.0.1
