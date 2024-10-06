@@ -1,8 +1,9 @@
 APScheduler==3.6.3
 environs==9.5.0
-motor
+motor==3.6.0
 moviepy==1.0.3
 Pillow==9.5.0
+pymongo==4.9.2
 PyPDF2==3.0.1
-python-telegram-bot[webhooks]
+python-telegram-bot[webhooks]==21.6
 textblob==0.18.0.post0
