@@ -1,11 +1,8 @@
 import os
 import shutil
 from pathlib import Path
-from typing import Callable
 
 from textblob import TextBlob
-
-import config
 
 
 def get_chunks_folder_name(file_path):
@@ -45,19 +42,6 @@ def interpret_response(response: str) -> bool:
 
     # If sentiment is neutral, return None to indicate unclear response
     return None
-
-
-def get_split_function(file_path: str) -> Callable:
-    """Get the appropriate split function based on file extension."""
-    file_extension = os.path.splitext(file_path)[1].lower()
-    return next(
-        (
-            config.file_handlers[extension_type]
-            for extension_type, extensions in config.file_extensions.items()
-            if file_extension in extensions
-        ),
-        None,
-    )
 
 
 def delete_chunks_folders() -> None:

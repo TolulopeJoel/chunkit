@@ -4,14 +4,10 @@ from datetime import datetime, timezone
 from telegram import ReplyKeyboardMarkup, ReplyKeyboardRemove, Update
 from telegram.ext import ContextTypes, ConversationHandler
 
-from config import CONFIRM_CHUNKS, GET_NUM_CHUNKS
+from config import CONFIRM_CHUNKS, GET_NUM_CHUNKS, get_split_function
 from database import user_db
 from logger import logger
-from utils import (
-    delete_chunks_folders,
-    get_file_info, get_split_function,
-    interpret_response
-)
+from utils import delete_chunks_folders, get_file_info, interpret_response
 
 
 async def handle_file(update: Update, context: ContextTypes.DEFAULT_TYPE) -> int:
