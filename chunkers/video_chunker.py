@@ -1,4 +1,5 @@
 import os
+from pathlib import PosixPath
 
 from moviepy.editor import VideoFileClip
 
@@ -8,6 +9,9 @@ from utils import get_chunks_folder_name
 def split_video(file_path, num_chunks=2):
     file_name = get_chunks_folder_name(file_path)[0]
     file_extension = get_chunks_folder_name(file_path)[1]
+
+    if isinstance(file_path, PosixPath):
+        file_path = str(file_path)
 
     video = VideoFileClip(file_path)
     duration = video.duration
