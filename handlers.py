@@ -1,41 +1,41 @@
 import os
-from pathlib import Path
+from datetime import datetime, timezone
 
 from telegram import ReplyKeyboardMarkup, ReplyKeyboardRemove, Update
 from telegram.ext import ContextTypes, ConversationHandler
 
 from config import CONFIRM_CHUNKS, GET_NUM_CHUNKS
+from database import user_db
 from logger import logger
-from utils import delete_chunks_folders, get_split_function, interpret_response
+from utils import (
+    delete_chunks_folders,
+    get_file_info, get_split_function,
+    interpret_response
+)
 
 
 async def handle_file(update: Update, context: ContextTypes.DEFAULT_TYPE) -> int:
-    """Handle the uploaded file and ask for the number of chunks."""
+    user_id = update.effective_user.id
     message = update.message
-    file, file_name = None, None
+    start_time = datetime.now(timezone.utc)
 
-    # Create a folder for storing downloaded files
-    downloads_folder = Path("downloads")
-    downloads_folder.mkdir(exist_ok=True)
-
-    if message.document:
-        file = await message.document.get_file()
-        file_name = message.document.file_name
-    elif message.photo:
-        file = await message.photo[-1].get_file()
-        file_name = f"photo_{message.photo[-1].file_id}.jpg"
-    elif message.video:
-        file = await message.video.get_file()
-        file_name = f"video_{message.video.file_id}.mp4"
-    else:
+    # Get file info
+    file_info = await get_file_info(message)
+    if not file_info:
         await message.reply_text(
             "Sorry, this file type is not supported. Please try uploading a document, photo, or video file."
         )
         return ConversationHandler.END
 
-    # Download the file to the downloads_folder
-    file_path = downloads_folder / file_name
+    file, file_path, file_size, file_type = file_info
     await file.download_to_drive(file_path)
+
+    # Update stats
+    context.application.create_task(
+        user_db.update_file_stats(user_id, file_size, file_type))
+    context.application.create_task(user_db.update_activity(user_id))
+
+    context.user_data.update({"file_path": file_path})
 
     # Check if file type is supported
     if not get_split_function(file_path):
@@ -128,7 +128,7 @@ async def confirm_chunks(update: Update, context: ContextTypes.DEFAULT_TYPE) -> 
         await send_chunks(update, context, chunk_files)
     except Exception as e:
         logger.error(f"Error processing file: {e}")
-        await update.message.reply_text(f"An error occurred while processing your file: {str(e)}")
+        await update.message.reply_text("An error occurred while processing your file.")
     finally:
         os.remove(file_path)
 
@@ -136,11 +136,35 @@ async def confirm_chunks(update: Update, context: ContextTypes.DEFAULT_TYPE) -> 
 
 
 async def send_chunks(update: Update, context: ContextTypes.DEFAULT_TYPE, chunk_files: list[str]) -> None:
-    """Send the chunked files to the user."""
+    """
+    Send the chunked files to the user and update process stats.
+    """
+    user_id = update.effective_user.id
+
+    start_time = datetime.now(timezone.utc)
+    chunks_sent = 0
     for chunk_file in chunk_files:
         with open(chunk_file, "rb") as file:
             await context.bot.send_document(chat_id=update.effective_chat.id, document=file)
+        chunks_sent += 1
+
+    end_time = datetime.now(timezone.utc)
+    process_time = (end_time - start_time).total_seconds() if start_time else 0
+    # Update process stats in the background
+    context.application.create_task(user_db.update_process_stats(
+        user_id,
+        process_time,
+        chunks_sent,
+        success=(chunks_sent == len(chunk_files))
+    ))
 
     await update.message.reply_text("All chunks have been sent. Is there anything else I can help you with?")
+
+    # Check for achievements
+    new_achievements = await user_db.check_and_add_achievements(user_id)
+    if new_achievements:
+        achievement_text = "\n🏆 Achievements unlocked!\n" + \
+            "\n".join(new_achievements)
+        await update.message.reply_text(achievement_text)
 
     delete_chunks_folders()

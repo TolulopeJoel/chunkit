@@ -1,5 +1,6 @@
 import os
 import shutil
+from pathlib import Path
 from typing import Callable
 
 from textblob import TextBlob
@@ -65,3 +66,33 @@ def delete_chunks_folders() -> None:
     for directory in os.listdir(current_dir):
         if directory.endswith("_chunks") and os.path.isdir(directory):
             shutil.rmtree(directory)
+
+
+async def get_file_info(message):
+    if message.document:
+        return (
+            await message.document.get_file(),
+            Path("downloads") / message.document.file_name,
+            message.document.file_size,
+            Path(message.document.file_name).suffix.strip('.').lower()
+        )
+    elif message.photo:
+        photo = message.photo[-1]
+        return (
+            await photo.get_file(),
+            Path("downloads") / f"photo_{photo.file_id}.jpeg",
+            photo.file_size,
+            'jpeg'
+        )
+    elif message.video:
+        return (
+            await message.video.get_file(),
+            Path("downloads") / f"video_{message.video.file_id}.mp4",
+            message.video.file_size,
+            'pdf'
+        )
+    return None
+
+
+def format_size(size):
+    return f"{size} MB"
