@@ -134,19 +134,11 @@ class UserDatabase:
 
         new_achievements = []
         current_achievements = set(user.get('achievements', []))
+        achievements = self.get_achievements(user)
 
-        achievements = {
-            "first_file": (user['files_uploaded'] >= 1, "🎯 First File"),
-            "file_master": (user['files_uploaded'] >= 100, "🏆 File Master"),
-            "data_heavyweight": (user['total_size'] >= 1_000_000_000, "💪 Data Heavyweight"),
-            "speed_demon": (user.get('fastest_process_time', float('inf')) < 1.0, "⚡ Speed Demon"),
-            "streak_warrior": (user.get('current_streak', 0) >= 7, "🔥 Streak Warrior"),
-            "type_collector": (len(user.get('file_type_counts', {})) >= 5, "📚 Type Collector")
-        }
-
-        for condition, name in achievements.values():
+        for (condition, name, reason) in achievements.values():
             if condition and name not in current_achievements:
-                new_achievements.append(name)
+                new_achievements.append(f"{name}\n{reason}")
                 current_achievements.add(name)
 
         if new_achievements:
@@ -158,6 +150,40 @@ class UserDatabase:
             )
 
         return new_achievements
+
+    def get_achievements(self, user):
+        return {
+            "first_file": (
+                user['files_uploaded'] >= 1,
+                "🎯 First File",
+                "You've started your journey by uploading your first file!"
+            ),
+            "file_master": (
+                user['files_uploaded'] >= 100,
+                "🏆 File Master",
+                "You're a prolific uploader with 100+ files shared!"
+            ),
+            "data_heavyweight": (
+                user['total_size'] >= 1_000_000_000,
+                "💪 Data Heavyweight",
+                "You've uploaded more than 1GB of data - that's impressive!"
+            ),
+            "speed_angel": (
+                user.get('fastest_process_time', float('inf')) <= 0.2,
+                "⚡ Speed Angel",
+                "Lightning fast! You processed a file in 0.2 seconds or less!"
+            ),
+            "streak_warrior": (
+                user.get('current_streak', 0) >= 7,
+                "🔥 Streak Warrior",
+                "Your dedication shows with a 7-day usage streak!"
+            ),
+            "type_collector": (
+                len(user.get('file_type_counts', {})) >= 5,
+                "📚 Type Collector",
+                "You're versatile! You've worked with 5 different file types!"
+            )
+        }
 
 
 # Initialize database
