@@ -53,10 +53,14 @@ def delete_chunks_folders() -> None:
 
 
 async def get_file_info(message):
+    # Create a folder for storing downloaded files
+    downloads_folder = Path("downloads")
+    downloads_folder.mkdir(exist_ok=True)
+
     if message.document:
         return (
             await message.document.get_file(),
-            Path("downloads") / message.document.file_name,
+            downloads_folder / message.document.file_name,
             message.document.file_size,
             Path(message.document.file_name).suffix.strip('.').lower()
         )
@@ -64,14 +68,14 @@ async def get_file_info(message):
         photo = message.photo[-1]
         return (
             await photo.get_file(),
-            Path("downloads") / f"photo_{photo.file_id}.jpeg",
+            downloads_folder / f"photo_{photo.file_id}.jpeg",
             photo.file_size,
             'jpeg'
         )
     elif message.video:
         return (
             await message.video.get_file(),
-            Path("downloads") / f"video_{message.video.file_id}.mp4",
+            downloads_folder / f"video_{message.video.file_id}.mp4",
             message.video.file_size,
             'pdf'
         )

@@ -13,7 +13,6 @@ from utils import delete_chunks_folders, get_file_info, interpret_response
 async def handle_file(update: Update, context: ContextTypes.DEFAULT_TYPE) -> int:
     user_id = update.effective_user.id
     message = update.message
-    start_time = datetime.now(timezone.utc)
 
     # Get file info
     file_info = await get_file_info(message)
