@@ -36,8 +36,7 @@ def split_video(file_path, num_chunks=2):
         )
         chunk.write_videofile(
             chunk_file_path,
-            codec="libx264",
-            audio_codec="libvorbis"
+            codec="libx264"
         )
         chunk_files.append(chunk_file_path)
 
