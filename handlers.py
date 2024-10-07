@@ -1,4 +1,5 @@
 import os
+import shutil
 from datetime import datetime, timezone
 
 from telegram import ReplyKeyboardMarkup, ReplyKeyboardRemove, Update
@@ -125,7 +126,8 @@ async def confirm_chunks(update: Update, context: ContextTypes.DEFAULT_TYPE) -> 
         logger.error(f"Error processing file: {e}")
         await update.message.reply_text("An error occurred while processing your file.")
     finally:
-        os.remove(file_path)
+        shutil.rmtree("downloads")
+        logger.info("Downloads folder deleted.")
 
     return ConversationHandler.END
 
