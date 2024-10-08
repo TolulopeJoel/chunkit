@@ -1,43 +1,47 @@
-import os
-from pathlib import PosixPath
+import multiprocessing
+from pathlib import Path
 
-from moviepy.editor import VideoFileClip
+import ffmpeg
 
 from utils import get_chunks_folder_name
 
 
+def get_video_duration(file_path):
+    probe = ffmpeg.probe(file_path)
+    video_info = next(s for s in probe['streams'] if s['codec_type'] == 'video')
+    return float(video_info['duration'])
+
+def split_chunk(args):
+    input_file, output_file, start_time, duration = args
+    (
+        ffmpeg
+        .input(input_file, ss=start_time, t=duration)
+        .output(output_file, c='copy')
+        .overwrite_output()
+        .run(quiet=True)
+    )
+    return output_file
+
 def split_video(file_path, num_chunks=2):
-    file_name = get_chunks_folder_name(file_path)[0]
-    file_extension = get_chunks_folder_name(file_path)[1]
+    file_path = Path(file_path)
+    file_name, file_extension = get_chunks_folder_name(file_path)
 
-    if isinstance(file_path, PosixPath):
-        file_path = str(file_path)
-
-    video = VideoFileClip(file_path)
-    duration = video.duration
+    duration = get_video_duration(file_path)
     chunk_duration = duration / num_chunks
     if duration % chunk_duration != 0:
         num_chunks += 1
 
-    # create text chunks ouput folder
-    chunks_folder_name = f"{file_name}_chunks"
-    os.makedirs(chunks_folder_name, exist_ok=True)
+    chunks_folder = Path(f"{file_name}_chunks")
+    chunks_folder.mkdir(exist_ok=True)
 
-    chunk_files = []
-
+    split_args = []
     for i in range(num_chunks):
         start = i * chunk_duration
         end = min((i + 1) * chunk_duration, duration)
-        chunk = video.subclip(start, end)
+        output_file = chunks_folder / f'{file_name}.chunk{i+1}{file_extension}'
+        split_args.append((str(file_path), str(output_file), start, end - start))
 
-        chunk_file_path = os.path.join(
-            chunks_folder_name,
-            f'{file_name}.chunk{i+1}{file_extension}'
-        )
-        chunk.write_videofile(
-            chunk_file_path,
-            codec="libx264"
-        )
-        chunk_files.append(chunk_file_path)
+    with multiprocessing.Pool() as pool:
+        chunk_files = pool.map(split_chunk, split_args)
 
     return chunk_files
