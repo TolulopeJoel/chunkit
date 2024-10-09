@@ -83,4 +83,4 @@ async def get_file_info(message):
 
 
 def format_size(size):
-    return f"{size * 0.000001} MB"
+    return f"{round(size * 0.000001, 2)} MB"

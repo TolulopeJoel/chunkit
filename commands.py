@@ -60,10 +60,11 @@ async def stats_command(update: Update, context: ContextTypes.DEFAULT_TYPE) -> N
 
 
 📋 FILE VARIETY:
-🏆 Most used type: {most_common_type}
+🏆 Most used file type: {most_common_type}
 📚 Unique types: {len(file_types)}
 🐘 Largest file: {format_size(user.get('largest_file_size', 0))}
 🐜 Smallest file: {format_size(user.get('smallest_file_size', float('inf')))}
+🪓 Chunks received: {user.get('chunks_sent', 0)}
 
 ⏰ TIMING PATTERNS:
 📅 Current streak: {user.get('current_streak', 0)} days
